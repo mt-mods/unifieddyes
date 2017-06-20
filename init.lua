@@ -145,9 +145,13 @@ local default_dyes = {
 	"yellow"
 }
 
--- just a stub to keep old mods from crashing when expecting auto-coloring
+-- just stubs to keep old mods from crashing when expecting auto-coloring
+-- or getting back the dye on dig.
 
 function unifieddyes.recolor_on_place(foo)
+end
+
+function unifieddyes.after_dig_node(foo)
 end
 
 -- this helper function registers all of the recipes needed to create colored
@@ -545,26 +549,6 @@ end
 function unifieddyes.on_construct(pos)
 	local meta = minetest.get_meta(pos)
 	meta:set_string("palette", "ext")
-end
-
--- call this in your node's after_dig_node to get the last-used dye back.
-
-function unifieddyes.after_dig_node(pos, oldnode, oldmetadata, digger)
-	local prevdye
-
-	if oldmetadata and oldmetadata.fields then
-		prevdye = oldmetadata.fields.dye
-	end
-
-	local inv = digger:get_inventory()
-
-	if prevdye and not (inv:contains_item("main", prevdye) and creative_mode) and minetest.registered_items[prevdye] then
-		if inv:room_for_item("main", prevdye) then
-			inv:add_item("main", prevdye)
-		else
-			minetest.add_item(pos, prevdye)
-		end
-	end
 end
 
 function unifieddyes.on_use(itemstack, player, pointed_thing)

@@ -30,8 +30,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 --=====================================================================
 
 unifieddyes = {}
-unifieddyes.last_used_dye = {}
-unifieddyes.last_dyed_node = {}
 
 local creative_mode = minetest.settings:get_bool("creative_mode")
 
@@ -89,6 +87,17 @@ unifieddyes.HUES_EXTENDED = {
 	{ "crimson",    0xff, 0x00, 0x40 }
 }
 
+unifieddyes.HUES_WALLMOUNTED = {
+	"red",
+	"orange",
+	"yellow",
+	"green",
+	"cyan",
+	"blue",
+	"violet",
+	"magenta"
+}
+
 unifieddyes.SATS = {
 	"",
 	"_s50"
@@ -135,6 +144,65 @@ local default_dyes = {
 	"white",
 	"yellow"
 }
+
+-- this helper function registers all of the recipes needed to create colored
+-- blocks with any of the dyes supported by that block's palette.
+
+function unifieddyes.register_color_craft(craft)
+	if not craft or not craft.recipe or not craft.output or not craft.neutral_node then return end
+
+	local hues_table = unifieddyes.HUES_EXTENDED
+	local sats_table = unifieddyes.SATS
+	local vals_table = unifieddyes.VALS_EXTENDED
+
+	if not craft.palette then
+		hues_table = unifieddyes.HUES
+		sats_table = unifieddyes.SATS
+		vals_table = unifieddyes.VALS
+	elseif craft.palette == "wallmounted" then
+		hues_table = unifieddyes.HUES_WALLMOUNTED
+		sats_table = {""}
+		vals_table = unifieddyes.VALS
+	end
+
+	for _,hue in ipairs(hues_table) do
+		for _,sat in ipairs(sats_table) do
+			for _,val in ipairs(vals_table) do
+
+				local color = "dye:"..val..hue[1]..sat
+				local paletteidx = unifieddyes.getpaletteidx(color, craft.palette)
+				local newrecipe = table.copy(craft.recipe)
+
+				for k, item in ipairs(newrecipe) do
+					if item == "MAIN_DYE" then newrecipe[k] = color end
+					if item == "NEUTRAL_NODE" then newrecipe[k] = craft.neutral_node end
+				end
+
+				local stack = ItemStack(craft.output)
+				stack:get_meta():set_int("palette_index", paletteidx)
+				stack:get_meta():set_string("dye", color)
+				local colorized_itemstack = stack:to_string()
+
+				minetest.register_craft({
+					output = colorized_itemstack,
+					type = craft.type,
+					recipe = newrecipe
+				})
+
+				if craft.neutral_node ~= string.split(craft.output, " ")[1] then
+					minetest.register_craft( {
+						output = colorized_itemstack,
+						type = "shapeless",
+						recipe = {
+							craft.neutral_node,
+							color
+						}
+					})
+				end
+			end
+		end
+	end
+end
 
 -- automatically recolor a placed node to match the last-used dye
 -- should be called in the node's `after_place_node` callback.

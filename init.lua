@@ -154,6 +154,16 @@ end
 function unifieddyes.after_dig_node(foo)
 end
 
+-- This helper function mostly by juhdanad, creates a colored itemstack
+
+function unifieddyes.make_colored_itemstack(itemstack, palette, color)
+	local paletteidx = unifieddyes.getpaletteidx(color, palette)
+	local stack = ItemStack(itemstack)
+	stack:get_meta():set_int("palette_index", paletteidx)
+	stack:get_meta():set_string("dye", color)
+	return stack:to_string()
+end
+
 -- this helper function registers all of the recipes needed to create colored
 -- blocks with any of the dyes supported by that block's palette.
 
@@ -179,7 +189,6 @@ function unifieddyes.register_color_craft(craft)
 			for _,val in ipairs(vals_table) do
 
 				local color = "dye:"..val..hue[1]..sat
-				local paletteidx = unifieddyes.getpaletteidx(color, craft.palette)
 				local newrecipe = table.copy(craft.recipe)
 
 				for k, item in ipairs(newrecipe) do
@@ -187,10 +196,8 @@ function unifieddyes.register_color_craft(craft)
 					if item == "NEUTRAL_NODE" then newrecipe[k] = craft.neutral_node end
 				end
 
-				local stack = ItemStack(craft.output)
-				stack:get_meta():set_int("palette_index", paletteidx)
-				stack:get_meta():set_string("dye", color)
-				local colorized_itemstack = stack:to_string()
+				local colorized_itemstack =
+					unifieddyes.make_colored_itemstack(craft.output, craft.palette, color)
 
 				minetest.register_craft({
 					output = colorized_itemstack,

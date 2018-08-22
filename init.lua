@@ -127,6 +127,14 @@ unifieddyes.GREYS = {
 	"black"
 }
 
+unifieddyes.GREYS_EXTENDED = table.copy(unifieddyes.GREYS)
+
+for i = 1, 14 do
+	if i ~= 0 and i ~= 3 and i ~= 7 and i ~= 11 and i ~= 15 then
+		table.insert(unifieddyes.GREYS_EXTENDED, "grey_"..i)
+	end
+end
+
 local default_dyes = {
 	"black",
 	"blue",
@@ -154,18 +162,49 @@ end
 function unifieddyes.after_dig_node(foo)
 end
 
--- This helper function mostly by juhdanad, creates a colored itemstack
+-- This helper function creates a colored itemstack
 
-function unifieddyes.make_colored_itemstack(itemstack, palette, color)
+function unifieddyes.make_colored_itemstack(item, palette, color)
 	local paletteidx = unifieddyes.getpaletteidx(color, palette)
-	local stack = ItemStack(itemstack)
+	local stack = ItemStack(item)
 	stack:get_meta():set_int("palette_index", paletteidx)
-	stack:get_meta():set_string("dye", color)
 	return stack:to_string()
 end
 
--- this helper function registers all of the recipes needed to create colored
--- blocks with any of the dyes supported by that block's palette.
+-- if your node was once 89-color and uses an LBM to convert to the 256-color palette,
+-- call this in that node def's on_construct:
+
+function unifieddyes.on_construct(pos)
+	local meta = minetest.get_meta(pos)
+	meta:set_string("palette", "ext")
+end
+
+-- these helper functions register all of the recipes needed to create colored
+-- nodes with any of the dyes supported by that node's palette.
+
+local function register_c(craft, hue, sat, val)
+	local color = ""
+	if val then
+		color = "dye:"..val..hue[1]..sat
+	else
+		color = "dye:"..hue -- if val is nil, then it's grey.
+	end
+
+	local recipe = minetest.serialize(craft.recipe)
+	recipe = string.gsub(recipe, "MAIN_DYE", color)
+	recipe = string.gsub(recipe, "NEUTRAL_NODE", craft.neutral_node)
+	local newrecipe = minetest.deserialize(recipe)
+
+	local colored_itemstack =
+		unifieddyes.make_colored_itemstack(craft.output, craft.palette, color)
+
+	minetest.register_craft({
+		output = colored_itemstack,
+		type = craft.type,
+		recipe = newrecipe
+	})
+
+end
 
 function unifieddyes.register_color_craft(craft)
 	if not craft or not craft.recipe or not craft.output or not craft.neutral_node then return end
@@ -173,50 +212,33 @@ function unifieddyes.register_color_craft(craft)
 	local hues_table = unifieddyes.HUES_EXTENDED
 	local sats_table = unifieddyes.SATS
 	local vals_table = unifieddyes.VALS_EXTENDED
+	local greys_table = unifieddyes.GREYS_EXTENDED
 
 	if not craft.palette then
 		hues_table = unifieddyes.HUES
 		sats_table = unifieddyes.SATS
 		vals_table = unifieddyes.VALS
+		greys_table = unifieddyes.GREYS
 	elseif craft.palette == "wallmounted" then
 		hues_table = unifieddyes.HUES_WALLMOUNTED
 		sats_table = {""}
 		vals_table = unifieddyes.VALS
+		greys_table = unifieddyes.GREYS
 	end
 
 	for _,hue in ipairs(hues_table) do
-		for _,sat in ipairs(sats_table) do
-			for _,val in ipairs(vals_table) do
+		for _,val in ipairs(vals_table) do
+			for _,sat in ipairs(sats_table) do
 
-				local color = "dye:"..val..hue[1]..sat
-				local newrecipe = table.copy(craft.recipe)
+				if sat == "_s50" and val ~= "" and val ~= "medium_" and val ~= "dark_" then break end
+				register_c(craft, hue, sat, val)
 
-				for k, item in ipairs(newrecipe) do
-					if item == "MAIN_DYE" then newrecipe[k] = color end
-					if item == "NEUTRAL_NODE" then newrecipe[k] = craft.neutral_node end
-				end
-
-				local colorized_itemstack =
-					unifieddyes.make_colored_itemstack(craft.output, craft.palette, color)
-
-				minetest.register_craft({
-					output = colorized_itemstack,
-					type = craft.type,
-					recipe = newrecipe
-				})
-
-				if craft.neutral_node ~= string.split(craft.output, " ")[1] then
-					minetest.register_craft( {
-						output = colorized_itemstack,
-						type = "shapeless",
-						recipe = {
-							craft.neutral_node,
-							color
-						}
-					})
-				end
 			end
 		end
+	end
+
+	for _, grey in ipairs(greys_table) do
+		register_c(craft, grey)
 	end
 end
 
@@ -550,19 +572,11 @@ function unifieddyes.getpaletteidx(color, palette_type)
 	end
 end
 
--- if your node was once 89-color and uses an LBM to convert to the 256-color palette,
--- call this in that node def's on_construct:
-
-function unifieddyes.on_construct(pos)
-	local meta = minetest.get_meta(pos)
-	meta:set_string("palette", "ext")
-end
-
 function unifieddyes.on_use(itemstack, player, pointed_thing)
 	local stackname = itemstack:get_name()
 	local playername = player:get_player_name()
 
-	if pointed_thing and pointed_thing.type == "node" then
+	if pointed_thing and pointed_thing.type == "node" and unifieddyes.select_node(pointed_thing) then
 		if minetest.is_protected(unifieddyes.select_node(pointed_thing), playername)
 		  and not minetest.check_player_privs(playername, "protection_bypass") then
 			minetest.chat_send_player(playername, "Sorry, someone else owns that spot.")
@@ -1029,7 +1043,9 @@ minetest.register_alias("dye:medium_orange", "dye:brown")
 
 minetest.register_alias("unifieddyes:black",      "dye:black")
 minetest.register_alias("unifieddyes:dark_grey",  "dye:dark_grey")
+minetest.register_alias("unifieddyes:grey", 	  "dye:grey")
 minetest.register_alias("unifieddyes:light_grey", "dye:light_grey")
+minetest.register_alias("unifieddyes:white",      "dye:white")
 
 minetest.register_alias("unifieddyes:grey_0",     "dye:black")
 minetest.register_alias("unifieddyes:grey_4",     "dye:dark_grey")
@@ -1051,6 +1067,7 @@ minetest.register_alias("unifieddyes:carbon_black", "dye:black")
 minetest.register_alias("unifieddyes:aqua", "unifieddyes:spring")
 minetest.register_alias("unifieddyes:skyblue", "unifieddyes:azure")
 minetest.register_alias("unifieddyes:redviolet", "unifieddyes:rose")
+minetest.register_alias("unifieddyes:brown", 	  "dye:brown")
 
 print(S("[UnifiedDyes] Loaded!"))
 

@@ -251,6 +251,8 @@ end
 
 function unifieddyes.fix_rotation(pos, placer, itemstack, pointed_thing)
 	local node = minetest.get_node(pos)
+	local colorbits = node.param2 - (node.param2 % 8)
+
 	local yaw = placer:get_look_horizontal()
 	local dir = minetest.yaw_to_dir(yaw) -- -1.5)
 	local pitch = placer:get_look_vertical()
@@ -262,7 +264,7 @@ function unifieddyes.fix_rotation(pos, placer, itemstack, pointed_thing)
 	elseif pitch > math.pi/8 then
 		fdir = 1
 	end
-	minetest.swap_node(pos, { name = node.name, param2 = fdir })
+	minetest.swap_node(pos, { name = node.name, param2 = fdir+colorbits })
 end
 
 -- use this when you have a "wallmounted" node that should never be oriented
@@ -270,10 +272,12 @@ end
 
 function unifieddyes.fix_rotation_nsew(pos, placer, itemstack, pointed_thing)
 	local node = minetest.get_node(pos)
+	local colorbits = node.param2 - (node.param2 % 8)
 	local yaw = placer:get_look_horizontal()
 	local dir = minetest.yaw_to_dir(yaw+1.5)
 	local fdir = minetest.dir_to_wallmounted(dir)
-	minetest.swap_node(pos, { name = node.name, param2 = fdir })
+
+	minetest.swap_node(pos, { name = node.name, param2 = fdir+colorbits })
 end
 
 -- ... and use this one to force that kind of node off of floor/ceiling

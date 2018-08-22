@@ -185,7 +185,11 @@ end
 local function register_c(craft, hue, sat, val)
 	local color = ""
 	if val then
-		color = "dye:"..val..hue[1]..sat
+		if craft.palette == "wallmounted" then
+			color = "dye:"..val..hue..sat
+		else
+			color = "dye:"..val..hue[1]..sat
+		end
 	else
 		color = "dye:"..hue -- if val is nil, then it's grey.
 	end
@@ -229,6 +233,10 @@ function unifieddyes.register_color_craft(craft)
 	for _,hue in ipairs(hues_table) do
 		for _,val in ipairs(vals_table) do
 			for _,sat in ipairs(sats_table) do
+
+				print("[UD] craft = ")
+				print(dump(craft))
+				print("[UD] hue = "..dump(hue).." ~~ sat = "..dump(sat).." ~~ val = "..dump(val))
 
 				if sat == "_s50" and val ~= "" and val ~= "medium_" and val ~= "dark_" then break end
 				register_c(craft, hue, sat, val)

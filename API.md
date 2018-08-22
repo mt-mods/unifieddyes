@@ -123,8 +123,10 @@ If your mod used the old paradigm where you craft a neutral-colored item, place 
 `palette` specifies the palette type to iterate through ("extended" and "wallmounted" are obvious, and if not specified, it'll use the 89 color palette).
 
 `type` can be "shapeless" or unspecified/`nil`, and works the same as in the normal call.
-	
-`recipe` is the same as in the normal call, except that Unified Dyes will replace all instances of the string "NEUTRAL_NODE" with the item specified in the preceding `neutral_node` field (this can be the same as the output node, minus the stack size anyway).  Every instance of "MAIN_DYE" will be replaced with a portion of dye, as Unified Dyes' recipe helper works through its color lists (i.e. this key will become whatever dye is needed for each recipe).
+
+`neutral_node` should specify the name of whatever item or node serves as the base, neutrally-colored material in your recipe.  If there isn't one, set this to an empty string.
+
+`recipe` is the same as in the normal call, except that Unified Dyes will replace all instances of the string "NEUTRAL_NODE" with the item specified in the preceding `neutral_node` field.  Every instance of "MAIN_DYE" will be replaced with a portion of dye, as Unified Dyes' recipe helper works through its color lists (i.e. this key will become whatever dye is needed for each recipe).
 
 If your mod never has never used Unified Dyes at all, in short, do the following:
 

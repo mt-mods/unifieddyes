@@ -234,10 +234,6 @@ function unifieddyes.register_color_craft(craft)
 		for _,val in ipairs(vals_table) do
 			for _,sat in ipairs(sats_table) do
 
-				print("[UD] craft = ")
-				print(dump(craft))
-				print("[UD] hue = "..dump(hue).." ~~ sat = "..dump(sat).." ~~ val = "..dump(val))
-
 				if sat == "_s50" and val ~= "" and val ~= "medium_" and val ~= "dark_" then break end
 				register_c(craft, hue, sat, val)
 

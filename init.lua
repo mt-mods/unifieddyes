@@ -185,22 +185,42 @@ end
 local function register_c(craft, hue, sat, val)
 	local color = ""
 	if val then
-		if craft.palette == "wallmounted" then
-			color = "dye:"..val..hue..sat
+		if craft.palette ~= "extended" then
+			color = val..hue..sat
 		else
-			color = "dye:"..val..hue[1]..sat
+			color = val..hue[1]..sat
 		end
 	else
-		color = "dye:"..hue -- if val is nil, then it's grey.
+		color = hue -- if val is nil, then it's grey.
 	end
 
+	local dye = "dye:"..color
+
 	local recipe = minetest.serialize(craft.recipe)
-	recipe = string.gsub(recipe, "MAIN_DYE", color)
+	recipe = string.gsub(recipe, "MAIN_DYE", dye)
 	recipe = string.gsub(recipe, "NEUTRAL_NODE", craft.neutral_node)
 	local newrecipe = minetest.deserialize(recipe)
 
+	local output = craft.output
+	if craft.output_prefix then
+		if craft.palette ~= true then
+			output = craft.output_prefix..color..craft.output_suffix
+		else
+			if hue == "white" or hue == "black" or string.find(hue, "grey") then
+				output = craft.output_prefix.."grey"..craft.output_suffix
+			else
+				output = craft.output_prefix..hue..craft.output_suffix
+			end
+		end
+	end
+
 	local colored_itemstack =
-		unifieddyes.make_colored_itemstack(craft.output, craft.palette, color)
+		unifieddyes.make_colored_itemstack(output, craft.palette, dye)
+
+	if string.find(output, "coloredwood") and string.find(output, "outer") then
+		print("[UD] register craft: "..craft.neutral_node.." ("..color..")")
+		print("[UD] register craft:     --> "..output)
+	end
 
 	minetest.register_craft({
 		output = colored_itemstack,
@@ -211,28 +231,24 @@ local function register_c(craft, hue, sat, val)
 end
 
 function unifieddyes.register_color_craft(craft)
-	if not craft or not craft.recipe or not craft.output or not craft.neutral_node then return end
-
-	local hues_table = unifieddyes.HUES_EXTENDED
+	local hues_table = unifieddyes.HUES
 	local sats_table = unifieddyes.SATS
-	local vals_table = unifieddyes.VALS_EXTENDED
-	local greys_table = unifieddyes.GREYS_EXTENDED
+	local vals_table = unifieddyes.VALS
+	local greys_table = unifieddyes.GREYS
 
-	if not craft.palette then
-		hues_table = unifieddyes.HUES
-		sats_table = unifieddyes.SATS
-		vals_table = unifieddyes.VALS
-		greys_table = unifieddyes.GREYS
-	elseif craft.palette == "wallmounted" then
+	if craft.palette == "wallmounted" then
 		hues_table = unifieddyes.HUES_WALLMOUNTED
 		sats_table = {""}
 		vals_table = unifieddyes.VALS
-		greys_table = unifieddyes.GREYS
+	elseif craft.palette == "extended" then
+		hues_table = unifieddyes.HUES_EXTENDED
+		vals_table = unifieddyes.VALS_EXTENDED
+		greys_table = unifieddyes.GREYS_EXTENDED
 	end
 
-	for _,hue in ipairs(hues_table) do
-		for _,val in ipairs(vals_table) do
-			for _,sat in ipairs(sats_table) do
+	for _, hue in ipairs(hues_table) do
+		for _, val in ipairs(vals_table) do
+			for _, sat in ipairs(sats_table) do
 
 				if sat == "_s50" and val ~= "" and val ~= "medium_" and val ~= "dark_" then break end
 				register_c(craft, hue, sat, val)
@@ -244,6 +260,7 @@ function unifieddyes.register_color_craft(craft)
 	for _, grey in ipairs(greys_table) do
 		register_c(craft, grey)
 	end
+
 end
 
 -- code borrowed from homedecor

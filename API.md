@@ -124,9 +124,9 @@ If your mod used the old paradigm where you craft a neutral-colored item, place 
 
 `type` can be "shapeless" or unspecified/`nil`, and works the same as in the normal call.
 
-`neutral_node` should specify the name of whatever item or node serves as the base, neutrally-colored material in your recipe.  If there isn't one, set this to an empty string.
+`neutral_node` should specify the name of whatever item or node serves as the base, neutrally-colored material in your recipe.  This really only applies if your node is just made from one item (or more than one of the same item), plus one or more dyes.  If your node is just made from a collection of item and no one item is really the neutral material, or anyway if you don't need this substitution, you must set it to an empty string.
 
-`recipe` is the same as in the normal call, except that Unified Dyes will replace all instances of the string "NEUTRAL_NODE" with the item specified in the preceding `neutral_node` field.  Every instance of "MAIN_DYE" will be replaced with a portion of dye, as Unified Dyes' recipe helper works through its color lists (i.e. this key will become whatever dye is needed for each recipe).
+`recipe` is the same as in the normal call, except that Unified Dyes will replace all instances of the string "NEUTRAL_NODE" with the item specified in the preceding `neutral_node` field.  Every instance of "MAIN_DYE" will be replaced with a portion of dye, as Unified Dyes' recipe helper works through its color lists (i.e. this field will become whatever dye is needed for each recipe).
 
 If your mod never has never used Unified Dyes at all, in short, do the following:
 

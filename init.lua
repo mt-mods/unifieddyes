@@ -220,11 +220,6 @@ local function register_c(craft, hue, sat, val)
 	local colored_itemstack =
 		unifieddyes.make_colored_itemstack(output, craft.palette, dye)
 
-	if string.find(output, "coloredwood") and string.find(output, "outer") then
-		print("[UD] register craft: "..craft.neutral_node.." ("..color..")")
-		print("[UD] register craft:     --> "..output)
-	end
-
 	minetest.register_craft({
 		output = colored_itemstack,
 		type = craft.type,

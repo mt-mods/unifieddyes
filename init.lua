@@ -208,6 +208,9 @@ local function register_c(craft, hue, sat, val)
 		else
 			if hue == "white" or hue == "black" or string.find(hue, "grey") then
 				output = craft.output_prefix.."grey"..craft.output_suffix
+			elseif hue == "pink" then
+				dye = "dye:light_red"
+				output = craft.output_prefix.."red"..craft.output_suffix
 			else
 				output = craft.output_prefix..hue..craft.output_suffix
 			end
@@ -260,6 +263,8 @@ function unifieddyes.register_color_craft(craft)
 	for _, grey in ipairs(greys_table) do
 		register_c(craft, grey)
 	end
+
+	register_c(craft, "pink")
 
 end
 

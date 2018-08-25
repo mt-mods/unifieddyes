@@ -225,7 +225,6 @@ local function register_c(craft, hue, sat, val)
 	end
 
 	local dye = "dye:"..color
-
 	local recipe = minetest.serialize(craft.recipe)
 	recipe = string.gsub(recipe, "MAIN_DYE", dye)
 	recipe = string.gsub(recipe, "NEUTRAL_NODE", craft.neutral_node)
@@ -265,6 +264,8 @@ function unifieddyes.register_color_craft(craft)
 	local greys_table = unifieddyes.GREYS
 
 	if craft.palette == "wallmounted" then
+		register_c(craft, "green", "", "light_")
+		register_c(craft, "azure", "", "")
 		hues_table = unifieddyes.HUES_WALLMOUNTED
 		sats_table = {""}
 		vals_table = unifieddyes.VALS
@@ -411,6 +412,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 	local aliases = {
 		["pink"] = "light_red",
 		["brown"] = "medium_orange",
+		["azure"] = "light_blue"
 	}
 
 	local grayscale = {
@@ -585,9 +587,10 @@ function unifieddyes.getpaletteidx(color, palette_type)
 	end
 
 	if palette_type == "wallmounted" then
-		if color == "brown" then return 48,1
+		if color == "green" and shade == "light" then return 48,3
+		elseif color == "brown" then return 17,1
 		elseif color == "pink" then return 56,7
-		elseif color == "blue" and shade == "light" then return 40,5
+		elseif color == "azure" then return 40,5
 		elseif hues_wallmounted[color] and shades_wallmounted[shade] then
 			return (shades_wallmounted[shade] * 64 + hues_wallmounted[color] * 8), hues_wallmounted[color]
 		end

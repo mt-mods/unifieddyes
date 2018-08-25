@@ -198,7 +198,7 @@ function unifieddyes.make_colored_itemstack(item, palette, color)
 	local paletteidx = unifieddyes.getpaletteidx(color, palette)
 	local stack = ItemStack(item)
 	stack:get_meta():set_int("palette_index", paletteidx)
-	return stack:to_string()
+	return stack:to_string(),paletteidx
 end
 
 -- if your node was once 89-color and uses an LBM to convert to the 256-color palette,
@@ -599,7 +599,20 @@ function unifieddyes.getpaletteidx(color, palette_type)
 			color = "red"
 			shade = "light"
 		end
-		if palette_type == true then -- it's colorfacedir
+		if palette_type == true then -- it's colorfacedir, so "split" 89-color palette
+
+			-- If using this palette, translate new color names back to old.
+
+			if shade == "" then
+				if color == "spring" then
+					color = "aqua"
+				elseif color == "azure" then
+					color = "skyblue"
+				elseif color == "rose" then
+					color = "redviolet"
+				end
+			end
+
 			if hues[color] and shades[shade] then
 				return (shades[shade] * 32), hues[color]
 			end
@@ -607,10 +620,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 			if hues_extended[color] and shades_extended[shade] then
 				return (hues_extended[color] + shades_extended[shade]*24), hues_extended[color]
 			end
-		else -- it's the 89-color palette
-
-			-- If using this palette, translate new color names back to old.
-
+		else -- it's the regular 89-color palette, do the same translation if needed
 			if shade == "" then
 				if color == "spring" then
 					color = "aqua"
@@ -938,10 +948,16 @@ minetest.register_alias("unifieddyes:carbon_black", "dye:black")
 -- note that technically, lime should be aliased, but can't be (there IS
 -- lime in the new color table, it's just shifted up a bit)
 
-minetest.register_alias("unifieddyes:aqua", "unifieddyes:spring")
-minetest.register_alias("unifieddyes:skyblue", "unifieddyes:azure")
-minetest.register_alias("unifieddyes:redviolet", "unifieddyes:rose")
-minetest.register_alias("unifieddyes:brown", 	  "dye:brown")
+minetest.register_alias("unifieddyes:aqua", "dye:spring")
+minetest.register_alias("dye:aqua", "dye:spring")
+
+minetest.register_alias("unifieddyes:skyblue", "dye:azure")
+minetest.register_alias("dye:skyblue", "dye:azure")
+
+minetest.register_alias("unifieddyes:redviolet", "dye:rose")
+minetest.register_alias("dye:redviolet", "dye:rose")
+
+minetest.register_alias("unifieddyes:brown", "dye:brown")
 
 print(S("[UnifiedDyes] Loaded!"))
 

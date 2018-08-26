@@ -160,26 +160,29 @@ local default_dyes = {
 minetest.register_on_placenode(
 	function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
 		local def = minetest.registered_items[newnode.name]
-		if not def or not def.palette then return false end
-		if string.find(itemstack:to_string(), "palette_index") then
-			minetest.swap_node(pos, {name = newnode.name, param2 = newnode.param2})
-			return
+
+		if not def
+		  or not def.palette
+		  or def.after_place_node then
+			return false
 		end
 
-		local param2 = 0
-		local color = 0
+		if not string.find(itemstack:to_string(), "palette_index") then
+			local param2 = 0
+			local color = 0
 
-		if def.palette == "unifieddyes_palette_extended.png" then
-			param2 = 240
-			color = 240
-		elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
-			param2 = newnode.param2 % 8
-		elseif def.palette ~= "unifieddyes_palette.png" then -- it's a split palette
-			param2 = newnode.param2 % 32
+			if def.palette == "unifieddyes_palette_extended.png" then
+				param2 = 240
+				color = 240
+			elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
+				param2 = newnode.param2 % 8
+			elseif def.palette ~= "unifieddyes_palette.png" then -- it's a split palette
+				param2 = newnode.param2 % 32
+			end
+
+			minetest.swap_node(pos, {name = newnode.name, param2 = param2})
+			minetest.get_meta(pos):set_int("palette_index", color)
 		end
-
-		minetest.swap_node(pos, {name = newnode.name, param2 = param2})
-		minetest.get_meta(pos):set_int("palette_index", color)
 	end
 )
 

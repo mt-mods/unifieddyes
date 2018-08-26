@@ -655,6 +655,11 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	local def = minetest.registered_items[node.name]
 	if not def then return end
 
+	if minetest.is_protected(pos, player_name) then
+		minetest.chat_send_player(player_name, "Sorry, someone else owns that node.")
+		return
+	end
+
 	if not def.palette then
 		minetest.chat_send_player(player_name, "That node can't be colored.")
 		return

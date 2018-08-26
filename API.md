@@ -42,10 +42,6 @@ These two are used to re-orient `wallmounted` nodes after placing. The former al
 
 This serves the same purpose as the `fix_rotation_nsew`, but is used to restrict the node's rotation after it's been hit with the screwdriver.
 
-**`unifieddyes.select_node(pointed_thing)`**
-
-Just what it says on the tin. :-) This function returns a position and node definition of whatever is being pointed at. 
-
 **`unifieddyes.is_buildable_to(placer_name, ...)`**
 
 Again, another obvious one, returns whether or not the pointed node is `buildable_to` (can be overwritten by another node).

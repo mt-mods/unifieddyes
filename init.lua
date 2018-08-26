@@ -644,12 +644,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 
 	local pos = minetest.get_pointed_thing_position(pointed_thing)
-	if not pos or player:get_player_control().sneak then
-		unifieddyes.show_airbrush_form(player)
-		return
-	end
-
-	if not painting_with then return end
+	if not pos then return end
 
 	local node = minetest.get_node(pos)
 	local def = minetest.registered_items[node.name]
@@ -883,7 +878,12 @@ minetest.register_tool("unifieddyes:airbrush", {
 		full_punch_interval=0.1,
 	},
 	range = 12,
-	on_use = unifieddyes.on_airbrush
+	on_use = unifieddyes.on_airbrush,
+	on_place = function(itemstack, placer, pointed_thing)
+		if placer:get_player_control().sneak then
+			unifieddyes.show_airbrush_form(placer)
+		end
+	end
 })
 
 minetest.register_craft( {

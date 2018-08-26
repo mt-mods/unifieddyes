@@ -881,6 +881,15 @@ minetest.register_tool("unifieddyes:airbrush", {
 	on_use = unifieddyes.on_airbrush
 })
 
+minetest.register_craft( {
+	output = "unifieddyes:airbrush",
+	recipe = {
+		{ "default:gold_ingot", "",                    "bucket:bucket_empty" },
+		{ "",                   "default:steel_ingot", ""                    },
+		{ "",                   "",                    "default:steel_ingot" }
+	},
+})
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "unifieddyes:dye_select_form" then
 		local player_name = player:get_player_name()

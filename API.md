@@ -13,6 +13,7 @@ minetest.register_node("mymod:colored_node", {
 	palette = "unifieddyes_palette_extended.png",
 	groups = {snappy = 1, cracky = 2, ud_param2_colorable = 1}
 	on_construct = unifieddyes.on_construct,
+	airbrush_replacement_node = "mymod:my_other_colored_node"
 })
 ```
 
@@ -30,6 +31,8 @@ minetest.register_node("mymod:colored_node", {
 `groups`: If your node can be colored by punching it with dye, its groups entry must contain the key ud_param2_colorable = 1, among whatever else you'd normally put there. If the node is software-controlled, as might be the case for some mesecons-digilines aware node, then this group key should be omitted.
 
 `on_construct`: see below.
+
+`airbrush_replacement_node`:  The node to swap in when the airbrush is used on this node.  For example, you could `minetest.override_item()` on some default node to add this field, pointing to a colorable node of your own, so that when the default node is painted, it's replaced with yours in the new color.
 
 #### Function calls
 

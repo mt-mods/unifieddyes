@@ -633,7 +633,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 	end
 end
 
--- punch-to-recolor
+-- punch-to-recolor using the airbrush
 
 function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	local player_name = player:get_player_name()
@@ -691,7 +691,9 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 		return
 	end
 
-	minetest.swap_node(pos, {name = node.name, param2 = fdir + idx})
+	local name = def.airbrush_replacement_node or node.name
+
+	minetest.swap_node(pos, {name = name, param2 = fdir + idx})
 	if not creative or not creative.is_enabled_for(player_name) then
 		inv:remove_item("main", painting_with)
 		return

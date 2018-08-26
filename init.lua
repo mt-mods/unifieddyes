@@ -644,7 +644,11 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 
 	local pos = minetest.get_pointed_thing_position(pointed_thing)
-	if not pos then unifieddyes.show_airbrush_form(player) return end
+	if not pos or player:get_player_control().sneak then
+		unifieddyes.show_airbrush_form(player)
+		return
+	end
+
 	if not painting_with then return end
 
 	local node = minetest.get_node(pos)

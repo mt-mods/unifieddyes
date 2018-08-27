@@ -453,12 +453,15 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		["lime"] = 4,
 		["green"] = 5,
 		["aqua"] = 6,
+		["spring"] = 6,
 		["cyan"] = 7,
 		["skyblue"] = 8,
+		["azure"] = 8,
 		["blue"] = 9,
 		["violet"] = 10,
 		["magenta"] = 11,
 		["redviolet"] = 12,
+		["rose"] = 12,
 	}
 
 	local hues_extended = {
@@ -473,10 +476,12 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		["green"] = 8,
 		["malachite"] = 9,
 		["spring"] = 10,
+		["aqua"] = 10,
 		["turquoise"] = 11,
 		["cyan"] = 12,
 		["cerulean"] = 13,
 		["azure"] = 14,
+		["skyblue"] = 14,
 		["sapphire"] = 15,
 		["blue"] = 16,
 		["indigo"] = 17,
@@ -485,6 +490,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		["magenta"] = 20,
 		["fuchsia"] = 21,
 		["rose"] = 22,
+		["redviolet"] = 22,
 		["crimson"] = 23,
 	}
 
@@ -599,14 +605,12 @@ function unifieddyes.getpaletteidx(color, palette_type)
 
 			-- If using this palette, translate new color names back to old.
 
-			if shade == "" then
-				if color == "spring" then
-					color = "aqua"
-				elseif color == "azure" then
-					color = "skyblue"
-				elseif color == "rose" then
-					color = "redviolet"
-				end
+			if color == "spring" then
+				color = "aqua"
+			elseif color == "azure" then
+				color = "skyblue"
+			elseif color == "rose" then
+				color = "redviolet"
 			end
 
 			if hues[color] and shades[shade] then
@@ -617,14 +621,12 @@ function unifieddyes.getpaletteidx(color, palette_type)
 				return (hues_extended[color] + shades_extended[shade]*24), hues_extended[color]
 			end
 		else -- it's the regular 89-color palette, do the same translation if needed
-			if shade == "" then
-				if color == "spring" then
-					color = "aqua"
-				elseif color == "azure" then
-					color = "skyblue"
-				elseif color == "rose" then
-					color = "redviolet"
-				end
+			if color == "spring" then
+				color = "aqua"
+			elseif color == "azure" then
+				color = "skyblue"
+			elseif color == "rose" then
+				color = "redviolet"
 			end
 			if hues[color] and shades[shade] then
 				return (hues[color] * 8 + shades[shade]), hues[color]
@@ -681,7 +683,6 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 
 	local idx, hue = unifieddyes.getpaletteidx(painting_with, palette)
-
 	local inv = player:get_inventory()
 	if (not creative or not creative.is_enabled_for(player_name)) and not inv:contains_item("main", painting_with) then
 		local suff = ""
@@ -698,9 +699,28 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 
 	local oldidx = node.param2 - fdir
-	if idx == oldidx then return end
 
 	local name = def.airbrush_replacement_node or node.name
+
+	if palette == true then
+		local s = string.sub(def.palette, 21)
+		local oldcolor = string.sub(s, 1, string.find(s, "s.png")-1)
+
+		local modname = string.sub(name, 1, string.find(name, ":")-1)
+		local nodename2 = string.sub(name, string.find(name, ":")+1)
+
+		local a,b
+
+		local newcolor = "grey"
+		if hue ~= 0 then
+			newcolor = unifieddyes.HUES[hue]
+		end
+
+		local a,b = string.gsub(nodename2, oldcolor, newcolor)
+		name = modname..":"..a
+	elseif idx == oldidx then
+		return
+	end
 
 	minetest.swap_node(pos, {name = name, param2 = fdir + idx})
 	if not creative or not creative.is_enabled_for(player_name) then
@@ -773,7 +793,7 @@ function unifieddyes.color_to_name(param2, def)
 		elseif color == 2 then return "grey"
 		elseif color == 3 then return "dark_grey"
 		elseif color == 4 then return "black"
-		elseif color == 5 then return "azure"
+		elseif color == 5 then return "light_blue"
 		elseif color == 6 then return "light_green"
 		elseif color == 7 then return "pink"
 		end
@@ -785,7 +805,7 @@ function unifieddyes.color_to_name(param2, def)
 		-- palette names in this mode are always "unifieddyes_palette_COLORs.png"
 
 		local s = string.sub(def.palette, 21)
-		local color = string.sub(s, 1, string.find(s, "s")-1)
+		local color = string.sub(s, 1, string.find(s, "s.png")-1)
 
 		local v = math.floor(param2/32)
 		if v == 0 then return "white" end
@@ -1105,6 +1125,14 @@ for _, h in ipairs(unifieddyes.HUES_EXTENDED) do
 			end
 		end
 		minetest.register_alias("unifieddyes:"..val..hue, "dye:"..val..hue)
+		if h[1] == "spring" then
+			minetest.register_alias("unifieddyes:"..val.."aqua", "dye:"..val.."spring")
+		elseif h[1] == "azure" then
+			minetest.register_alias("unifieddyes:"..val.."skyblue", "dye:"..val.."azure")
+		elseif h[1] == "rose" then
+			minetest.register_alias("unifieddyes:"..val.."redviolet", "dye:"..val.."rose")
+		end
+
 
 		if v > 3 then -- also register the low-sat version
 
@@ -1125,6 +1153,13 @@ for _, h in ipairs(unifieddyes.HUES_EXTENDED) do
 				groups = { dye=1, not_in_creative_inventory=1 },
 			})
 			minetest.register_alias("unifieddyes:"..val..hue.."_s50", "dye:"..val..hue.."_s50")
+			if h[1] == "spring" then
+				minetest.register_alias("unifieddyes:"..val.."aqua_s50", "dye:"..val.."spring_s50")
+			elseif h[1] == "azure" then
+				minetest.register_alias("unifieddyes:"..val.."skyblue_s50", "dye:"..val.."azure_s50")
+			elseif h[1] == "rose" then
+				minetest.register_alias("unifieddyes:"..val.."redviolet_s50", "dye:"..val.."rose_s50")
+			end
 		end
 	end
 end
@@ -1347,19 +1382,6 @@ minetest.register_alias("unifieddyes:lightgrey_paint", "dye:light_grey")
 minetest.register_alias("unifieddyes:grey_paint", "dye:grey")
 minetest.register_alias("unifieddyes:darkgrey_paint", "dye:dark_grey")
 minetest.register_alias("unifieddyes:carbon_black", "dye:black")
-
--- aqua -> spring, skyblue -> azure, and redviolet -> rose aliases
--- note that technically, lime should be aliased, but can't be (there IS
--- lime in the new color table, it's just shifted up a bit)
-
-minetest.register_alias("unifieddyes:aqua", "dye:spring")
-minetest.register_alias("dye:aqua", "dye:spring")
-
-minetest.register_alias("unifieddyes:skyblue", "dye:azure")
-minetest.register_alias("dye:skyblue", "dye:azure")
-
-minetest.register_alias("unifieddyes:redviolet", "dye:rose")
-minetest.register_alias("dye:redviolet", "dye:rose")
 
 minetest.register_alias("unifieddyes:brown", "dye:brown")
 

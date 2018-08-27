@@ -690,10 +690,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 
 	local oldidx = node.param2 - fdir
-	if idx == oldidx then
-		minetest.chat_send_player(player_name, "That node is already "..string.sub(painting_with, 5)..".")
-		return
-	end
+	if idx == oldidx then return end
 
 	local name = def.airbrush_replacement_node or node.name
 

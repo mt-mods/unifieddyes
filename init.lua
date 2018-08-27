@@ -1045,20 +1045,28 @@ minetest.register_craft( {
 })
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
+	print(dump(fields))
 	if formname == "unifieddyes:dye_select_form" then
 		local player_name = player:get_player_name()
-		local s1 = string.sub(minetest.serialize(fields), 11)
-		local s3 = string.sub(s1,1, string.find(s1, '"')-1)
-		if s3 == "cancel" then
-			unifieddyes.player_selected_dye[player_name] = nil
-			return
-		elseif s3 == "accept" and unifieddyes.player_selected_dye[player_name] then
-			local dye = unifieddyes.player_selected_dye[player_name]
-			unifieddyes.player_current_dye[player_name] = dye
-			unifieddyes.player_selected_dye[player_name] = nil
-				minetest.chat_send_player(player_name, "*** Selected "..string.sub(dye, 5).." for the airbrush.")
-			return
+		if fields.quit then
+			if not fields.accept then
+				unifieddyes.player_selected_dye[player_name] = nil
+				return
+			else
+				local dye = unifieddyes.player_selected_dye[player_name]
+				if not dye then
+					minetest.chat_send_player(player_name, "*** Clicked \"Accept\", but no color was selected!")
+					return
+				end
+				unifieddyes.player_current_dye[player_name] = dye
+				unifieddyes.player_selected_dye[player_name] = nil
+					minetest.chat_send_player(player_name, "*** Selected "..string.sub(dye, 5).." for the airbrush.")
+				return
+			end
 		else
+			local s1 = string.sub(minetest.serialize(fields), 11)
+			local s3 = string.sub(s1,1, string.find(s1, '"')-1)
+
 			local inv = player:get_inventory()
 			local creative = creative and creative.is_enabled_for(player_name)
 			local dye = "dye:"..s3

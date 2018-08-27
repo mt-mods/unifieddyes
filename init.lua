@@ -998,7 +998,7 @@ minetest.register_tool("unifieddyes:airbrush", {
 				minetest.chat_send_player(player_name, "*** That node is uncolored.")
 				return
 			end
-			minetest.chat_send_player(player_name, "*** Switching to dye:"..newcolor.." to match that node.")
+			minetest.chat_send_player(player_name, "*** Switching to "..newcolor.." for the airbrush, to match that node.")
 			unifieddyes.player_current_dye[player_name] = "dye:"..newcolor 
 		end
 	end

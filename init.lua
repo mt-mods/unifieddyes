@@ -655,6 +655,14 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 		return
 	end
 
+	if not painting_with then
+		minetest.chat_send_player(player_name, "*** You need to set a color first.")
+		minetest.chat_send_player(player_name, "*** Right-click any random node to open the color selector,")
+		minetest.chat_send_player(player_name, "*** or shift+right-click a colorized node to use its color.")
+		minetest.chat_send_player(player_name, "*** Be sure to click \"Accept\", or the color you select will be ignored.")
+		return
+	end
+
 	if not def.palette then
 		minetest.chat_send_player(player_name, "That node can't be colored.")
 		return

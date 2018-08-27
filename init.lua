@@ -704,6 +704,103 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 end
 
+-- get a node's dye color based on its palette and param2
+
+function unifieddyes.color_to_name(param2, def)
+	if not param2 or not def or not def.palette then return end
+
+	if def.palette == "unifieddyes_palette_extended.png" then
+		local color = param2
+
+		local v = 0
+		local s = 1 
+		if color < 24 then v = 1
+		elseif color > 23  and color < 48  then v = 2
+		elseif color > 47  and color < 72  then v = 3
+		elseif color > 71  and color < 96  then v = 4
+		elseif color > 95  and color < 120 then v = 5
+		elseif color > 119 and color < 144 then v = 5 s = 2
+		elseif color > 143 and color < 168 then v = 6
+		elseif color > 167 and color < 192 then v = 6 s = 2
+		elseif color > 191 and color < 216 then v = 7
+		elseif color > 215 and color < 240 then v = 7 s = 2
+		end
+
+		if color > 239 then
+			if color == 240 then return "white"
+			elseif color == 244 then return "light_grey"
+			elseif color == 247 then return "grey"
+			elseif color == 251 then return "dark_grey"
+			elseif color == 255 then return "black" 
+			else return "grey_"..15-(color-240)
+			end
+		else
+			local h = color - math.floor(color/24)*24
+			return unifieddyes.VALS_EXTENDED[v]..unifieddyes.HUES_EXTENDED[h+1][1]..unifieddyes.SATS[s]
+		end
+
+	elseif def.palette == "unifieddyes_palette.png" then
+		local color = param2
+		local h = math.floor(color/8)
+		local s = 1
+		local val = ""
+		if color == 1 or color == h or color > 103 or color == 6 or color == 7 then return "white"
+		elseif color == 2 then return "light_grey"
+		elseif color == 3 then return "grey"
+		elseif color == 4 then return "dark_grey"
+		elseif color == 5 then return "black"
+		end
+		local c = color - h*8
+		if c == 2 then s = 2
+		elseif c == 3 then val = "light_"
+		elseif c == 4 then val = "medium_"
+		elseif c == 5 then val = "medium_" s = 2
+		elseif c == 6 then val = "dark_"
+		else val = "dark_" s = 2
+		end
+
+		return val..unifieddyes.HUES[h+1]..unifieddyes.SATS[s]
+ 
+	elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
+		local color = math.floor(param2 / 8)
+		if color == 0 then return "white"
+		elseif color == 1 then return "light_grey"
+		elseif color == 2 then return "grey"
+		elseif color == 3 then return "dark_grey"
+		elseif color == 4 then return "black"
+		elseif color == 5 then return "azure"
+		elseif color == 6 then return "light_green"
+		elseif color == 7 then return "pink"
+		end
+		local v = math.floor(color/8)
+		local h = color - v * 8
+		return unifieddyes.VALS[v]..unifieddyes.HUES_WALLMOUNTED[h+1]
+
+	elseif string.find(def.palette, "unifieddyes_palette") then -- it's the "split" 89-color palette
+		-- palette names in this mode are always "unifieddyes_palette_COLORs.png"
+
+		local s = string.sub(def.palette, 21)
+		local color = string.sub(s, 1, string.find(s, "s")-1)
+
+		local v = math.floor(param2/32)
+		if v == 0 then return "white" end
+		if color ~= "grey" then
+			if v == 1 then return color
+			elseif v == 2 then return color.."_s50"
+			elseif v == 3 then return "light_"..color
+			elseif v == 4 then return "medium_"..color
+			elseif v == 5 then return "medium_"..color.."_s50"
+			elseif v == 6 then return "dark_"..color
+			elseif v == 7 then return "dark_"..color.."_s50"
+			end
+		else
+			if v > 0 and v < 6 then return unifieddyes.GREYS[v]
+			else return "white"
+			end
+		end
+	end
+end
+
 function unifieddyes.show_airbrush_form(player)
 	if not player then return end
 	local player_name = player:get_player_name()
@@ -880,8 +977,24 @@ minetest.register_tool("unifieddyes:airbrush", {
 	range = 12,
 	on_use = unifieddyes.on_airbrush,
 	on_place = function(itemstack, placer, pointed_thing)
-		if placer:get_player_control().sneak then
+		local keys = placer:get_player_control()
+		if not keys.sneak then
 			unifieddyes.show_airbrush_form(placer)
+		elseif keys.sneak then
+			local player_name = placer:get_player_name()
+			local pos = minetest.get_pointed_thing_position(pointed_thing)
+			if not pos then return end
+			local node = minetest.get_node(pos)
+			local def = minetest.registered_items[node.name]
+			if not def then return end
+			local newcolor = unifieddyes.color_to_name(node.param2, def)
+
+			if not newcolor then
+				minetest.chat_send_player(player_name, "That node is uncolored.")
+				return
+			end
+			minetest.chat_send_player(player_name, "Switching to dye:"..newcolor.." to match that node.")
+			unifieddyes.player_current_dye[player_name] = "dye:"..newcolor 
 		end
 	end
 })

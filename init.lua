@@ -639,7 +639,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	local player_name = player:get_player_name()
 	local painting_with = nil
 
-	if unifieddyes.player_current_dye[player_name] and minetest.registered_items[unifieddyes.player_current_dye[player_name]] then
+	if unifieddyes.player_current_dye[player_name] then
 		painting_with = unifieddyes.player_current_dye[player_name]
 	end
 

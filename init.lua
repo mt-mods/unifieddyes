@@ -651,7 +651,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	if not def then return end
 
 	if minetest.is_protected(pos, player_name) then
-		minetest.chat_send_player(player_name, "Sorry, someone else owns that node.")
+		minetest.chat_send_player(player_name, "*** Sorry, someone else owns that node.")
 		return
 	end
 
@@ -664,7 +664,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	end
 
 	if not def.palette then
-		minetest.chat_send_player(player_name, "That node can't be colored.")
+		minetest.chat_send_player(player_name, "*** That node can't be colored.")
 		return
 	end
 
@@ -688,12 +688,12 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 		if not idx then
 			suff = "  Besides, "..string.sub(painting_with, 5).." can't be applied to that node."
 		end
-		minetest.chat_send_player(player_name, "You're in survival mode, and you're out of "..string.sub(painting_with, 5).."."..suff)
+		minetest.chat_send_player(player_name, "*** You're in survival mode, and you're out of "..string.sub(painting_with, 5).."."..suff)
 		return
 	end
 
 	if not idx then
-		minetest.chat_send_player(player_name, string.sub(painting_with, 5).." can't be applied to that node.")
+		minetest.chat_send_player(player_name, "*** "..string.sub(painting_with, 5).." can't be applied to that node.")
 		return
 	end
 
@@ -995,10 +995,10 @@ minetest.register_tool("unifieddyes:airbrush", {
 			local newcolor = unifieddyes.color_to_name(node.param2, def)
 
 			if not newcolor then
-				minetest.chat_send_player(player_name, "That node is uncolored.")
+				minetest.chat_send_player(player_name, "*** That node is uncolored.")
 				return
 			end
-			minetest.chat_send_player(player_name, "Switching to dye:"..newcolor.." to match that node.")
+			minetest.chat_send_player(player_name, "*** Switching to dye:"..newcolor.." to match that node.")
 			unifieddyes.player_current_dye[player_name] = "dye:"..newcolor 
 		end
 	end
@@ -1025,7 +1025,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			local dye = unifieddyes.player_selected_dye[player_name]
 			unifieddyes.player_current_dye[player_name] = dye
 			unifieddyes.player_selected_dye[player_name] = nil
-				minetest.chat_send_player(player_name, "Selected "..string.sub(dye, 5).." for the airbrush.")
+				minetest.chat_send_player(player_name, "*** Selected "..string.sub(dye, 5).." for the airbrush.")
 			return
 		else
 			local inv = player:get_inventory()

@@ -984,11 +984,12 @@ function unifieddyes.show_airbrush_form(player)
 		base_form = base_form..
 				"image[10.3,"..(vps*5+vs)..";"..size..
 				"unifieddyes_available_overlay.png]"..
-				"label[11.0,"..(vps*5.1+vs)..";Dyes on hand]"..
+				"label[11.0,"..(vps*5.1+vs)..";Dyes on hand]"
+	end
+		base_form = base_form..
 				"image[12.5,"..(vps*5+vs)..";"..size..
 				selindic..
 				"label[13.2,"..(vps*5.1+vs)..";Your selection]"
-	end
 
 	base_form = base_form..
 				"button_exit[11,8;2,1;cancel;Cancel]"..
@@ -1045,7 +1046,6 @@ minetest.register_craft( {
 })
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	print(dump(fields))
 	if formname == "unifieddyes:dye_select_form" then
 		local player_name = player:get_player_name()
 		if fields.quit then

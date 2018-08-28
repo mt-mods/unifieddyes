@@ -829,6 +829,7 @@ end
 function unifieddyes.show_airbrush_form(player)
 	if not player then return end
 	local player_name = player:get_player_name()
+	local painting_with = unifieddyes.player_selected_dye[player_name] or unifieddyes.player_current_dye[player_name]
 	local creative = creative and creative.is_enabled_for(player_name)
 	local inv = player:get_inventory()
 
@@ -874,7 +875,7 @@ function unifieddyes.show_airbrush_form(player)
 				overlay = "^unifieddyes_available_overlay.png"
 			end
 
-			if dye == unifieddyes.player_selected_dye[player_name] then
+			if dye == painting_with then
 				overlay = "^unifieddyes_select_overlay.png"
 				selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
 							"tooltip["..val..hue..sat..";"..val..hue..sat.."]"
@@ -926,7 +927,7 @@ function unifieddyes.show_airbrush_form(player)
 					overlay = "^unifieddyes_available_overlay.png"
 				end
 
-				if dye == unifieddyes.player_selected_dye[player_name] then
+				if dye == painting_with then
 					overlay = "^unifieddyes_select_overlay.png"
 					selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
 								"tooltip["..val..hue..sat..";"..val..hue..sat.."]"
@@ -966,7 +967,7 @@ function unifieddyes.show_airbrush_form(player)
 			overlay = "^unifieddyes_available_overlay.png"
 		end
 
-		if dye == unifieddyes.player_selected_dye[player_name] then
+		if dye == painting_with then
 			overlay = "^unifieddyes_select_overlay.png"
 			slindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
 						"tooltip["..grey2..";"..grey2.."]"
@@ -995,10 +996,10 @@ function unifieddyes.show_airbrush_form(player)
 				"button_exit[11,8;2,1;cancel;Cancel]"..
 				"button_exit[13,8;2,1;accept;Accept]"
 
-	if unifieddyes.player_selected_dye[player_name] then
+	if painting_with then
 		base_form = base_form..
 					"label[1,"..(7.5+vs)..";Selected dye:  "..
-					unifieddyes.player_selected_dye[player_name].."]"
+					painting_with.."]"
 	end
 
 	minetest.show_formspec(player_name, "unifieddyes:dye_select_form", base_form)

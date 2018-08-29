@@ -981,7 +981,7 @@ function unifieddyes.show_airbrush_form(player)
 
 		if dye == painting_with then
 			overlay = "^unifieddyes_select_overlay.png"
-			slindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
+			selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
 						"tooltip["..grey2..";"..grey2.."]"
 		end
 

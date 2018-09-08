@@ -856,7 +856,7 @@ function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative,
 	local overlay = ""
 	local colorize = minetest.formspec_escape("^[colorize:#"..hexcolor..":255")
 
-	if (showall or not nodepalette) and not creative and inv:contains_item("main", dye) then
+	if not creative and inv:contains_item("main", dye) then
 		overlay = "^unifieddyes_available_overlay.png"
 	end
 

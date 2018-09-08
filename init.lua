@@ -850,7 +850,6 @@ local color_button_size = ";0.75,0.75;"
 
 function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
 
-	local form = ""
 	local dye = "dye:"..colorname
 
 	local overlay = ""
@@ -875,7 +874,7 @@ function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative,
 					"tooltip["..colorname..";"..colorname.."]"
 	end
 
-	form = form.."image_button["..
+	local form = "image_button["..
 				(hp*hps)..","..(v2*vps+vs)..
 				color_button_size..
 				"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
@@ -887,6 +886,9 @@ end
 
 function unifieddyes.show_airbrush_form(player)
 	if not player then return end
+
+	local t = {}
+
 	local player_name = player:get_player_name()
 	local painting_with = unifieddyes.player_selected_dye[player_name] or unifieddyes.player_current_dye[player_name]
 	local creative = creative and creative.is_enabled_for(player_name)
@@ -894,7 +896,7 @@ function unifieddyes.show_airbrush_form(player)
 	local nodepalette = "extended"
 	local showall = unifieddyes.player_showall[player_name]
 
-	local base_form = "size[15,8.5]label[7,-0.25;Select a color:]"
+	t[1] = "size[15,8.5]label[7,-0.25;Select a color:]"
 	local selindic = "unifieddyes_select_overlay.png^unifieddyes_question.png]"
 
 	local last_right_click = unifieddyes.player_last_right_clicked[player_name]
@@ -903,15 +905,15 @@ function unifieddyes.show_airbrush_form(player)
 			if last_right_click.def.palette == "unifieddyes_palette_colorwallmounted.png" then
 				nodepalette = "wallmounted"
 			elseif last_right_click.def.palette == "unifieddyes_palette_extended.png" then
-				base_form = base_form.."label[0.5,8.25;(Right-clicked a node that supports all 256 colors, showing them all)]"
+				t[#t+1] = "label[0.5,8.25;(Right-clicked a node that supports all 256 colors, showing them all)]"
 				showall = true
 			elseif last_right_click.def.palette ~= "unifieddyes_palette_extended.png" then
 				nodepalette = "old89"
 			elseif not string.find(last_right_click.def.palette, "unifieddyes_palette_") then
-			base_form = base_form.."label[0.5,8.25;(Right-clicked a node not supported by the Airbrush, showing all colors)]"
+			t[#t+1] = "label[0.5,8.25;(Right-clicked a node not supported by the Airbrush, showing all colors)]"
 			end
 		else
-			base_form = base_form.."label[0.5,8.25;(Right-clicked a non-colorable node, showing all colors)]"
+			t[#t+1] = "label[0.5,8.25;(Right-clicked a non-colorable node, showing all colors)]"
 		end
 	end
 
@@ -942,7 +944,7 @@ function unifieddyes.show_airbrush_form(player)
 			local hexcolor = string.format("%02x", r2)..string.format("%02x", g2)..string.format("%02x", b2)
 			local f
 			f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
-			base_form = base_form..f
+			t[#t+1] = f
 		end
 
 		if v > 3 then
@@ -975,7 +977,7 @@ function unifieddyes.show_airbrush_form(player)
 				local hexcolor = string.format("%02x", r3)..string.format("%02x", g3)..string.format("%02x", b3)
 				local f
 				f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
-				base_form = base_form..f
+				t[#t+1] = f
 			end
 		end
 	end
@@ -997,44 +999,49 @@ function unifieddyes.show_airbrush_form(player)
 
 		local f
 		f, selindic = unifieddyes.make_colored_square(hexgrey, grey, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
-		base_form = base_form..f
+		t[#t+1] = f
 
 	end
 
 	if not creative then
-		base_form = base_form..
-				"image[10.3,"..(vps*5+vs)..color_button_size..
-				"unifieddyes_onhand_overlay.png]"..
-				"label[11.0,"..(vps*5.1+vs)..";Dyes on hand]"
+		t[#t+1] = "image[10.3,"
+		t[#t+1] = (vps*5+vs)
+		t[#t+1] = color_button_size
+		t[#t+1] = "unifieddyes_onhand_overlay.png]label[11.0,"
+		t[#t+1] = (vps*5.1+vs)
+		t[#t+1] = ";Dyes on hand]"
 	end
 
-	base_form = base_form.."image[12.5,"..(vps*5+vs)..color_button_size..
-				selindic.."label[13.2,"..(vps*5.1+vs)..";Your selection]"
+	t[#t+1] = "image[12.5,"
+	t[#t+1] = (vps*5+vs)
+	t[#t+1] = color_button_size
+	t[#t+1] = selindic
+	t[#t+1] = "label[13.2,"
+	t[#t+1] = (vps*5.1+vs)
+	t[#t+1] = ";Your selection]"
 
-	base_form = base_form..
-				"button_exit[11,8;2,1;cancel;Cancel]"..
-				"button_exit[13,8;2,1;accept;Accept]"
+	t[#t+1] = "button_exit[11,8;2,1;cancel;Cancel]button_exit[13,8;2,1;accept;Accept]"
 
 
 	if last_right_click and last_right_click.def and last_right_click.def.palette and nodepalette ~= "extended" then
 		if showall then
-			base_form = base_form..
-						"button[0.5,8;2,1;show_avail;Show Available]"..
-						"label[2.5,8.25;(Currently showing all 256 colors)]"
+			t[#t+1] = "button[0.5,8;2,1;show_avail;Show Available]"
+			t[#t+1] = "label[2.5,8.25;(Currently showing all 256 colors)]"
 		else
-			base_form = base_form..
-						"button[0.5,8;2,1;show_all;Show All Colors]"..
-						"label[2.5,8.25;(Currently only showing what the right-clicked node can use)]"
+			t[#t+1] = "button[0.5,8;2,1;show_all;Show All Colors]"
+			t[#t+1] = "label[2.5,8.25;(Currently only showing what the right-clicked node can use)]"
 		end
 	end
 
 	if painting_with then
-		base_form = base_form..
-					"label[0.5,"..(7.25+vs)..";Selected dye:  "..
-					painting_with.."]"
+		t[#t+1] = "label[0.5,"
+		t[#t+1] = (7.25+vs)
+		t[#t+1] = ";Selected dye:  "
+		t[#t+1] = painting_with
+		t[#t+1] = "]"
 	end
 
-	minetest.show_formspec(player_name, "unifieddyes:dye_select_form", base_form)
+	minetest.show_formspec(player_name, "unifieddyes:dye_select_form", table.concat(t))
 end
 
 minetest.register_tool("unifieddyes:airbrush", {

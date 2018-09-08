@@ -277,7 +277,6 @@ function unifieddyes.register_color_craft(craft)
 	if craft.palette == "wallmounted" then
 		register_c(craft, "green", "", "light_")
 		register_c(craft, "blue", "", "light_")
-		register_c(craft, "pink", "", "")
 		hues_table = unifieddyes.HUES_WALLMOUNTED
 		sats_table = {""}
 		vals_table = unifieddyes.VALS

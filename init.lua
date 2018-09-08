@@ -862,7 +862,11 @@ function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative,
 
 	local unavail_overlay = ""
 	if not showall and not unifieddyes.palette_has_color[nodepalette.."_"..colorname] then
-		unavail_overlay = "^unifieddyes_unavailable_overlay.png"
+		if overlay == "" then
+			unavail_overlay = "^unifieddyes_unavailable_overlay.png"
+		else
+			unavail_overlay = "^unifieddyes_onhand_unavailable_overlay.png"
+		end
 	end
 
 	if dye == painting_with then

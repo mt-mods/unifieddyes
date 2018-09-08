@@ -843,6 +843,44 @@ function unifieddyes.color_to_name(param2, def)
 	end
 end
 
+local hps = 0.6 -- horizontal position scale
+local vps = 1.3 -- vertical position scale
+local vs = 0.3  -- vertical shift/offset
+local color_button_size = ";0.75,0.75;"
+
+function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+
+	local form = ""
+	local dye = "dye:"..colorname
+
+	local overlay = ""
+	local colorize = minetest.formspec_escape("^[colorize:#"..hexcolor..":255")
+
+	if (showall or not nodepalette) and not creative and inv:contains_item("main", dye) then
+		overlay = "^unifieddyes_available_overlay.png"
+	end
+
+	local unavail_overlay = ""
+	if not showall and not unifieddyes.palette_has_color[nodepalette.."_"..colorname] then
+		unavail_overlay = "^unifieddyes_unavailable_overlay.png"
+	end
+
+	if dye == painting_with then
+		overlay = "^unifieddyes_select_overlay.png"
+		selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
+					"tooltip["..colorname..";"..colorname.."]"
+	end
+
+	form = form.."image_button["..
+				(hp*hps)..","..(v2*vps+vs)..
+				color_button_size..
+				"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
+				colorname..";]"..
+				"tooltip["..colorname..";"..colorname.."]"
+
+	return form, selindic
+end
+
 function unifieddyes.show_airbrush_form(player)
 	if not player then return end
 	local player_name = player:get_player_name()
@@ -853,6 +891,7 @@ function unifieddyes.show_airbrush_form(player)
 	local showall = unifieddyes.player_showall[player_name]
 
 	local base_form = "size[15,8.5]label[7,-0.25;Select a color:]"
+	local selindic = "unifieddyes_select_overlay.png^unifieddyes_question.png]"
 
 	local last_right_click = unifieddyes.player_last_right_clicked[player_name]
 	if last_right_click then
@@ -871,13 +910,6 @@ function unifieddyes.show_airbrush_form(player)
 			base_form = base_form.."label[0.5,8.25;(Right-clicked a non-colorable node, showing all colors)]"
 		end
 	end
-
-	local selindic = "unifieddyes_select_overlay.png^unifieddyes_question.png]"
-
-	local size="0.75,0.75;"
-	local hps=0.6
-	local vps=1.3
-	local vs=0.3
 
 	for v = 0, 6 do
 		local val = unifieddyes.VALS_EXTENDED[v+1]
@@ -903,34 +935,10 @@ function unifieddyes.show_airbrush_form(player)
 			local g2 = math.max(math.min(g + (4-v)*factor, 255), 0)
 			local b2 = math.max(math.min(b + (4-v)*factor, 255), 0)
 
-			local color = string.format("%02x", r2)..string.format("%02x", g2)..string.format("%02x", b2)
-			local dye = "dye:"..val..hue..sat
-
-			local overlay = ""
-			local colorize = minetest.formspec_escape("^[colorize:#"..color..":255")
-
-			if (showall or not nodepalette) and not creative and inv:contains_item("main", dye) then
-				overlay = "^unifieddyes_available_overlay.png"
-			end
-
-			if dye == painting_with then
-				overlay = "^unifieddyes_select_overlay.png"
-				selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
-							"tooltip["..val..hue..sat..";"..val..hue..sat.."]"
-			end
-
-			local unavail_overlay = ""
-			if not showall and not unifieddyes.palette_has_color[nodepalette.."_"..val..hue..sat] then
-				unavail_overlay = "^unifieddyes_unavailable_overlay.png"
-			end
-
-			base_form = base_form.."image_button["..
-									(hp*hps)..","..(v2*vps+vs)..";"..
-									size..
-									"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
-									val..hue..sat..";]"..
-									"tooltip["..val..hue..sat..";"..val..hue..sat.."]"
-
+			local hexcolor = string.format("%02x", r2)..string.format("%02x", g2)..string.format("%02x", b2)
+			local f
+			f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+			base_form = base_form..f
 		end
 
 		if v > 3 then
@@ -960,33 +968,10 @@ function unifieddyes.show_airbrush_form(player)
 				local g3 = math.floor(p+(g2-p)*0.5)
 				local b3 = math.floor(p+(b2-p)*0.5)
 
-				local color = string.format("%02x", r3)..string.format("%02x", g3)..string.format("%02x", b3)
-				local dye = "dye:"..val..hue..sat
-
-				local overlay = ""
-				local colorize = minetest.formspec_escape("^[colorize:#"..color..":255")
-
-				if (showall or not nodepalette) and not creative and inv:contains_item("main", dye) then
-					overlay = "^unifieddyes_available_overlay.png"
-				end
-
-				if dye == painting_with then
-					overlay = "^unifieddyes_select_overlay.png"
-					selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
-								"tooltip["..val..hue..sat..";"..val..hue..sat.."]"
-				end
-
-				local unavail_overlay = ""
-				if not showall and not unifieddyes.palette_has_color[nodepalette.."_"..val..hue..sat] then
-					unavail_overlay = "^unifieddyes_unavailable_overlay.png"
-				end
-
-				base_form = base_form.."image_button["..
-										(hp*hps)..","..(v2*vps+vs)..";"..
-										size..
-										"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
-										val..hue..sat..";]"..
-										"tooltip["..val..hue..sat..";"..val..hue..sat.."]"
+				local hexcolor = string.format("%02x", r3)..string.format("%02x", g3)..string.format("%02x", b3)
+				local f
+				f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+				base_form = base_form..f
 			end
 		end
 	end
@@ -996,52 +981,30 @@ function unifieddyes.show_airbrush_form(player)
 
 		local hp=(15-y)+0.5
 
-		local grey = string.format("%02x", y*17)..string.format("%02x", y*17)..string.format("%02x", y*17)
-		local grey2 = "grey_"..y
+		local hexgrey = string.format("%02x", y*17)..string.format("%02x", y*17)..string.format("%02x", y*17)
+		local grey = "grey_"..y
 
-		if y == 0 then grey2 = "black" 
-		elseif y == 4 then grey2 = "dark_grey"
-		elseif y == 8 then grey2 = "grey"
-		elseif y == 11 then grey2 = "light_grey"
-		elseif y == 15 then grey2 = "white"
+		if y == 0 then grey = "black" 
+		elseif y == 4 then grey = "dark_grey"
+		elseif y == 8 then grey = "grey"
+		elseif y == 11 then grey = "light_grey"
+		elseif y == 15 then grey = "white"
 		end
 
-		local dye = "dye:"..grey2
-
-		local overlay = ""
-		local colorize = minetest.formspec_escape("^[colorize:#"..grey..":255")
-
-		if (showall or not nodepalette) and not creative and inv:contains_item("main", dye) then
-			overlay = "^unifieddyes_available_overlay.png"
-		end
-
-		if dye == painting_with then
-			overlay = "^unifieddyes_select_overlay.png"
-			selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
-						"tooltip["..grey2..";"..grey2.."]"
-		end
-
-		local unavail_overlay = ""
-		if not showall and not unifieddyes.palette_has_color[nodepalette.."_"..grey2] then
-			unavail_overlay = "^unifieddyes_unavailable_overlay.png"
-		end
-
-		base_form = base_form.."image_button["..
-								(hp*hps)..","..(v2*vps+vs)..";"..
-								size..
-								"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
-								grey2..";]tooltip["..grey2..";"..grey2.."]"
+		local f
+		f, selindic = unifieddyes.make_colored_square(hexgrey, grey, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+		base_form = base_form..f
 
 	end
 
 	if not creative then
 		base_form = base_form..
-				"image[10.3,"..(vps*5+vs)..";"..size..
+				"image[10.3,"..(vps*5+vs)..color_button_size..
 				"unifieddyes_available_overlay.png]"..
 				"label[11.0,"..(vps*5.1+vs)..";Dyes on hand]"
 	end
 
-	base_form = base_form.."image[12.5,"..(vps*5+vs)..";"..size..
+	base_form = base_form.."image[12.5,"..(vps*5+vs)..color_button_size..
 				selindic.."label[13.2,"..(vps*5.1+vs)..";Your selection]"
 
 	base_form = base_form..

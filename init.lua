@@ -184,7 +184,7 @@ minetest.register_on_placenode(
 				color = 240
 			elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
 				param2 = newnode.param2 % 8
-			elseif def.palette ~= "unifieddyes_palette.png" then -- it's a split palette
+			else  -- it's a split palette
 				param2 = newnode.param2 % 32
 			end
 
@@ -210,14 +210,6 @@ function unifieddyes.make_colored_itemstack(item, palette, color)
 	local stack = ItemStack(item)
 	stack:get_meta():set_int("palette_index", paletteidx)
 	return stack:to_string(),paletteidx
-end
-
--- if your node was once 89-color and uses an LBM to convert to the 256-color palette,
--- call this in that node def's on_construct:
-
-function unifieddyes.on_construct(pos)
-	local meta = minetest.get_meta(pos)
-	meta:set_string("palette", "ext")
 end
 
 -- these helper functions register all of the recipes needed to create colored
@@ -399,7 +391,6 @@ end
 -- in the function below, color is just a color string, while
 -- palette_type can be:
 --
--- false/nil = standard 89 color palette
 -- true = 89 color palette split into pieces for colorfacedir
 -- "wallmounted" = 32-color abridged palette
 -- "extended" = 256 color palette
@@ -559,10 +550,6 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		if grayscale_extended[color] then
 			return grayscale_extended[color]+240, 0
 		end
-	else
-		if grayscale[color] then
-			return grayscale[color], 0
-		end
 	end
 
 	local shade = "" -- assume full
@@ -606,7 +593,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 			color = "red"
 			shade = "light"
 		end
-		if palette_type == true then -- it's colorfacedir, so "split" 89-color palette
+		if palette_type == true then -- it's colorfacedir, so "split" palette
 
 			-- If using this palette, translate new color names back to old.
 
@@ -624,17 +611,6 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		elseif palette_type == "extended" then
 			if hues_extended[color] and shades_extended[shade] then
 				return (hues_extended[color] + shades_extended[shade]*24), hues_extended[color]
-			end
-		else -- it's the regular 89-color palette, do the same translation if needed
-			if color == "spring" then
-				color = "aqua"
-			elseif color == "azure" then
-				color = "skyblue"
-			elseif color == "rose" then
-				color = "redviolet"
-			end
-			if hues[color] and shades[shade] then
-				return (hues[color] * 8 + shades[shade]), hues[color]
 			end
 		end
 	end
@@ -682,7 +658,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
 		palette = "wallmounted"
 		fdir = node.param2 % 8
-	elseif def.palette ~= "unifieddyes_palette.png" then
+	else
 		palette = true
 		fdir = node.param2 % 32
 	end
@@ -781,28 +757,6 @@ function unifieddyes.color_to_name(param2, def)
 			return unifieddyes.VALS_EXTENDED[v]..unifieddyes.HUES_EXTENDED[h+1][1]..unifieddyes.SATS[s]
 		end
 
-	elseif def.palette == "unifieddyes_palette.png" then
-		local color = param2
-		local h = math.floor(color/8)
-		local s = 1
-		local val = ""
-		if color == 1 or color == h or color > 103 or color == 6 or color == 7 then return "white"
-		elseif color == 2 then return "light_grey"
-		elseif color == 3 then return "grey"
-		elseif color == 4 then return "dark_grey"
-		elseif color == 5 then return "black"
-		end
-		local c = color - h*8
-		if c == 2 then s = 2
-		elseif c == 3 then val = "light_"
-		elseif c == 4 then val = "medium_"
-		elseif c == 5 then val = "medium_" s = 2
-		elseif c == 6 then val = "dark_"
-		else val = "dark_" s = 2
-		end
-
-		return val..unifieddyes.HUES[h+1]..unifieddyes.SATS[s]
- 
 	elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
 		local color = math.floor(param2 / 8)
 		if color == 0 then return "white"
@@ -1169,30 +1123,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 end)
 
--- build a table to convert from classic/89-color palette to extended palette
-
--- the first five entries are for the old greyscale - white, light, grey, dark, black
-unifieddyes.convert_classic_palette = {
-	240,
-	244,
-	247,
-	251,
-	253
-}
-
-for hue = 0, 11 do
-	-- light
-	local paletteidx = unifieddyes.getpaletteidx("dye:light_"..unifieddyes.HUES[hue+1], false)
-	unifieddyes.convert_classic_palette[paletteidx] = hue*2 + 48
-	for sat = 0, 1 do
-		for val = 0, 2 do
-			-- all other shades
-			local paletteidx = unifieddyes.getpaletteidx("dye:"..unifieddyes.VALS[val+1]..unifieddyes.HUES[hue+1]..unifieddyes.SATS[sat+1], false)
-			unifieddyes.convert_classic_palette[paletteidx] = hue*2 + sat*24 + (val*48+96)
-		end
-	end
-end
-
 -- Generate all dyes that are not part of the default minetest_game dyes mod
 
 for _, h in ipairs(unifieddyes.HUES_EXTENDED) do
@@ -1312,7 +1242,7 @@ minetest.register_craftitem(":dye:light_grey", {
 
 for _, palette in ipairs({"extended", "old89", "wallmounted"}) do
 	local palette2 = palette
-	if palette == "old89" then palette2 = nil end
+	if palette == "old89" then palette2 = true end
 
 	for i in ipairs(unifieddyes.SATS) do
 		local sat = (palette == "wallmounted") and "" or unifieddyes.SATS[i]

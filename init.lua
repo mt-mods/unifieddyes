@@ -1008,17 +1008,34 @@ function unifieddyes.show_airbrush_form(player)
 		t[#t+1] = (vps*5+vs)
 		t[#t+1] = color_button_size
 		t[#t+1] = "unifieddyes_onhand_overlay.png]label[11.0,"
-		t[#t+1] = (vps*5.1+vs)
-		t[#t+1] = ";Dyes on hand]"
+		t[#t+1] = (vps*5.02+vs)
+		t[#t+1] = ";Dyes]"
+		t[#t+1] = "label[11.0,"
+		t[#t+1] = (vps*5.18+vs)
+		t[#t+1] = ";on hand]"
+
 	end
 
-	t[#t+1] = "image[12.5,"
+	t[#t+1] = "image[11.9,"
 	t[#t+1] = (vps*5+vs)
 	t[#t+1] = color_button_size
 	t[#t+1] = selindic
-	t[#t+1] = "label[13.2,"
-	t[#t+1] = (vps*5.1+vs)
-	t[#t+1] = ";Your selection]"
+
+
+	if painting_with then
+		t[#t+1] = "label[12.6,"
+		t[#t+1] = (vps*5.02+vs)
+		t[#t+1] = ";Your selection:]"
+		t[#t+1] = "label[12.6,"
+		t[#t+1] = (vps*5.18+vs)
+		t[#t+1] = ";"
+		t[#t+1] = painting_with
+		t[#t+1] = "]"
+	else
+		t[#t+1] = "label[12.6,"
+		t[#t+1] = (vps*5.1+vs)
+		t[#t+1] = ";Your selection]"
+	end
 
 	t[#t+1] = "button_exit[11,8;2,1;cancel;Cancel]button_exit[13,8;2,1;accept;Accept]"
 
@@ -1031,14 +1048,6 @@ function unifieddyes.show_airbrush_form(player)
 			t[#t+1] = "button[0.5,8;2,1;show_all;Show All Colors]"
 			t[#t+1] = "label[2.5,8.25;(Currently only showing what the right-clicked node can use)]"
 		end
-	end
-
-	if painting_with then
-		t[#t+1] = "label[0.5,"
-		t[#t+1] = (7.25+vs)
-		t[#t+1] = ";Selected dye:  "
-		t[#t+1] = painting_with
-		t[#t+1] = "]"
 	end
 
 	minetest.show_formspec(player_name, "unifieddyes:dye_select_form", table.concat(t))

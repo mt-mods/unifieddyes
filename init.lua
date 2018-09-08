@@ -235,7 +235,7 @@ local function register_c(craft, hue, sat, val)
 
 	local output = craft.output
 	if craft.output_prefix then
-		if craft.palette ~= true then
+		if craft.palette ~= "split" then
 			output = craft.output_prefix..color..craft.output_suffix
 		else
 			if hue == "white" or hue == "black" or string.find(hue, "grey") then
@@ -391,7 +391,7 @@ end
 -- in the function below, color is just a color string, while
 -- palette_type can be:
 --
--- true = 89 color palette split into pieces for colorfacedir
+-- "split" = 89 color palette split into pieces for colorfacedir
 -- "wallmounted" = 32-color abridged palette
 -- "extended" = 256 color palette
 
@@ -542,7 +542,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		if grayscale_wallmounted[color] then
 			return (grayscale_wallmounted[color] * 8), 0
 		end
-	elseif palette_type == true then
+	elseif palette_type == "split" then
 		if grayscale[color] then
 			return (grayscale[color] * 32), 0
 		end
@@ -593,7 +593,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 			color = "red"
 			shade = "light"
 		end
-		if palette_type == true then -- it's colorfacedir, so "split" palette
+		if palette_type == "split" then -- it's colorfacedir
 
 			-- If using this palette, translate new color names back to old.
 
@@ -659,7 +659,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 		palette = "wallmounted"
 		fdir = node.param2 % 8
 	else
-		palette = true
+		palette = "split"
 		fdir = node.param2 % 32
 	end
 
@@ -682,7 +682,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	local oldidx = node.param2 - fdir
 	local name = def.airbrush_replacement_node or node.name
 
-	if palette == true then
+	if palette == "split" then
 		local modname = string.sub(name, 1, string.find(name, ":")-1)
 		local nodename2 = string.sub(name, string.find(name, ":")+1)
 		local oldcolor = "snozzberry"
@@ -862,7 +862,7 @@ function unifieddyes.show_airbrush_form(player)
 				t[#t+1] = "label[0.5,8.25;(Right-clicked a node that supports all 256 colors, showing them all)]"
 				showall = true
 			elseif last_right_click.def.palette ~= "unifieddyes_palette_extended.png" then
-				nodepalette = "old89"
+				nodepalette = "split"
 			elseif not string.find(last_right_click.def.palette, "unifieddyes_palette_") then
 			t[#t+1] = "label[0.5,8.25;(Right-clicked a node not supported by the Airbrush, showing all colors)]"
 			end
@@ -1067,7 +1067,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				if last_right_click.def.palette == "unifieddyes_palette_colorwallmounted.png" then
 					nodepalette = "wallmounted"
 				elseif last_right_click.def.palette ~= "unifieddyes_palette_extended.png" then
-					nodepalette = "old89"
+					nodepalette = "split"
 				end
 			end
 		end
@@ -1240,9 +1240,8 @@ minetest.register_craftitem(":dye:light_grey", {
 -- build a table of color <-> palette associations to reduce the need for
 -- realtime lookups with getpaletteidx()
 
-for _, palette in ipairs({"extended", "old89", "wallmounted"}) do
+for _, palette in ipairs({"extended", "split", "wallmounted"}) do
 	local palette2 = palette
-	if palette == "old89" then palette2 = true end
 
 	for i in ipairs(unifieddyes.SATS) do
 		local sat = (palette == "wallmounted") and "" or unifieddyes.SATS[i]

@@ -276,7 +276,8 @@ function unifieddyes.register_color_craft(craft)
 
 	if craft.palette == "wallmounted" then
 		register_c(craft, "green", "", "light_")
-		register_c(craft, "azure", "", "")
+		register_c(craft, "blue", "", "light_")
+		register_c(craft, "pink", "", "")
 		hues_table = unifieddyes.HUES_WALLMOUNTED
 		sats_table = {""}
 		vals_table = unifieddyes.VALS
@@ -594,7 +595,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		if color == "green" and shade == "light" then return 48,3
 		elseif color == "brown" then return 17,1
 		elseif color == "pink" then return 56,7
-		elseif color == "azure" then return 40,5
+		elseif color == "blue" and shade == "light" then return 40,5
 		elseif hues_wallmounted[color] and shades_wallmounted[shade] then
 			return (shades_wallmounted[shade] * 64 + hues_wallmounted[color] * 8), hues_wallmounted[color]
 		end
@@ -1021,7 +1022,6 @@ function unifieddyes.show_airbrush_form(player)
 	t[#t+1] = color_button_size
 	t[#t+1] = selindic
 
-
 	if painting_with then
 		t[#t+1] = "label[12.6,"
 		t[#t+1] = (vps*5.02+vs)
@@ -1341,6 +1341,8 @@ for _, palette in ipairs({"extended", "old89", "wallmounted"}) do
 		end
 	end
 end
+
+unifieddyes.palette_has_color["wallmounted_light_red"] = true
 
 -- crafting!
 

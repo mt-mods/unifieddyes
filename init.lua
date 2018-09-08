@@ -867,7 +867,7 @@ function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative,
 
 	if dye == painting_with then
 		overlay = "^unifieddyes_select_overlay.png"
-		selindic = "unifieddyes_white_square.png"..colorize..overlay.."]"..
+		selindic = "unifieddyes_white_square.png"..colorize..overlay..unavail_overlay.."]"..
 					"tooltip["..colorname..";"..colorname.."]"
 	end
 
@@ -1082,10 +1082,23 @@ minetest.register_craft( {
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 
-	print(dump(fields))
-
 	if formname == "unifieddyes:dye_select_form" then
+
 		local player_name = player:get_player_name()
+		local nodepalette = "extended"
+		local showall = unifieddyes.player_showall[player_name]
+
+		local last_right_click = unifieddyes.player_last_right_clicked[player_name]
+		if last_right_click and last_right_click.def then
+			if last_right_click.def.palette then
+				if last_right_click.def.palette == "unifieddyes_palette_colorwallmounted.png" then
+					nodepalette = "wallmounted"
+				elseif last_right_click.def.palette ~= "unifieddyes_palette_extended.png" then
+					nodepalette = "old89"
+				end
+			end
+		end
+
 		if fields.show_all then 
 			unifieddyes.player_showall[player_name] = true
 			unifieddyes.show_airbrush_form(player)
@@ -1100,11 +1113,22 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				if not dye then
 					minetest.chat_send_player(player_name, "*** Clicked \"Accept\", but no color was selected!")
 					return
-				end
-				unifieddyes.player_current_dye[player_name] = dye
-				unifieddyes.player_selected_dye[player_name] = nil
+				elseif not showall
+						and not unifieddyes.palette_has_color[nodepalette.."_"..string.sub(dye, 5)] then
+					minetest.chat_send_player(player_name, "*** Clicked \"Accept\", but the selected color can't be used on the")
+					minetest.chat_send_player(player_name, "*** node that was right-clicked (and \"Show All\" wasn't in effect).")
+					if unifieddyes.player_current_dye[player_name] then
+						minetest.chat_send_player(player_name, "*** Ignoring it and sticking with "..string.sub(unifieddyes.player_current_dye[player_name], 5)..".")
+					else
+						minetest.chat_send_player(player_name, "*** Ignoring it.")
+					end
+					return
+				else
+					unifieddyes.player_current_dye[player_name] = dye
+					unifieddyes.player_selected_dye[player_name] = nil
 					minetest.chat_send_player(player_name, "*** Selected "..string.sub(dye, 5).." for the airbrush.")
-				return
+					return
+				end
 			else -- assume "Cancel" or Esc.
 				unifieddyes.player_selected_dye[player_name] = nil
 				return
@@ -1116,20 +1140,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			local inv = player:get_inventory()
 			local creative = creative and creative.is_enabled_for(player_name)
 			local dye = "dye:"..s3
-
-			local nodepalette = "extended"
-			local showall = unifieddyes.player_showall[player_name]
-
-			local last_right_click = unifieddyes.player_last_right_clicked[player_name]
-			if last_right_click and last_right_click.def then
-				if last_right_click.def.palette then
-					if last_right_click.def.palette == "unifieddyes_palette_colorwallmounted.png" then
-						nodepalette = "wallmounted"
-					elseif last_right_click.def.palette ~= "unifieddyes_palette_extended.png" then
-						nodepalette = "old89"
-					end
-				end
-			end
 
 			if (showall or unifieddyes.palette_has_color[nodepalette.."_"..s3]) and
 				(minetest.registered_items[dye] and (creative or inv:contains_item("main", dye))) then

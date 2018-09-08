@@ -848,7 +848,7 @@ local vps = 1.3 -- vertical position scale
 local vs = 0.3  -- vertical shift/offset
 local color_button_size = ";0.75,0.75;"
 
-function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
 
 	local form = ""
 	local dye = "dye:"..colorname
@@ -937,7 +937,7 @@ function unifieddyes.show_airbrush_form(player)
 
 			local hexcolor = string.format("%02x", r2)..string.format("%02x", g2)..string.format("%02x", b2)
 			local f
-			f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+			f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
 			base_form = base_form..f
 		end
 
@@ -970,7 +970,7 @@ function unifieddyes.show_airbrush_form(player)
 
 				local hexcolor = string.format("%02x", r3)..string.format("%02x", g3)..string.format("%02x", b3)
 				local f
-				f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+				f, selindic = unifieddyes.make_colored_square(hexcolor, val..hue..sat, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
 				base_form = base_form..f
 			end
 		end
@@ -992,7 +992,7 @@ function unifieddyes.show_airbrush_form(player)
 		end
 
 		local f
-		f, selindic = unifieddyes.make_colored_square(hexgrey, grey, showall, creative, painting_with, nodepalette, hp, v2, selindic)
+		f, selindic = unifieddyes.make_colored_square(hexgrey, grey, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv)
 		base_form = base_form..f
 
 	end

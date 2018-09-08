@@ -857,7 +857,7 @@ function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative,
 	local colorize = minetest.formspec_escape("^[colorize:#"..hexcolor..":255")
 
 	if not creative and inv:contains_item("main", dye) then
-		overlay = "^unifieddyes_available_overlay.png"
+		overlay = "^unifieddyes_onhand_overlay.png"
 	end
 
 	local unavail_overlay = ""
@@ -1000,7 +1000,7 @@ function unifieddyes.show_airbrush_form(player)
 	if not creative then
 		base_form = base_form..
 				"image[10.3,"..(vps*5+vs)..color_button_size..
-				"unifieddyes_available_overlay.png]"..
+				"unifieddyes_onhand_overlay.png]"..
 				"label[11.0,"..(vps*5.1+vs)..";Dyes on hand]"
 	end
 

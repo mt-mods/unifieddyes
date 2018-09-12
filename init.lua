@@ -649,7 +649,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 		return
 	end
 
-	if not (def.groups and def.groups.ud_param2_colorable > 0) then
+	if not (def.groups and def.groups.ud_param2_colorable and def.groups.ud_param2_colorable > 0) then
 		minetest.chat_send_player(player_name, "*** That node can't be colored.")
 		return
 	end

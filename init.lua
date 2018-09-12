@@ -649,21 +649,24 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 		return
 	end
 
-	if not def.palette or not (def.groups and def.groups.ud_param2_colorable > 0) then
+	if not (def.groups and def.groups.ud_param2_colorable > 0) then
 		minetest.chat_send_player(player_name, "*** That node can't be colored.")
 		return
 	end
 
 	local palette = nil
 	local fdir = 0
-	if def.palette == "unifieddyes_palette_extended.png" then
+	if def.paramtype2 == "color" then
 		palette = "extended"
-	elseif def.palette == "unifieddyes_palette_colorwallmounted.png" then
+	elseif def.paramtype2 == "colorwallmounted" then
 		palette = "wallmounted"
 		fdir = node.param2 % 8
-	else
+	elseif def.paramtype2 ==  "colorfacedir" then
 		palette = "split"
 		fdir = node.param2 % 32
+	else
+		minetest.chat_send_player(player_name, "*** That node can't be colored -- it has an invalid color mode.")
+		return
 	end
 
 	local idx, hue = unifieddyes.getpaletteidx(painting_with, palette)
@@ -686,6 +689,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 	local name = def.airbrush_replacement_node or node.name
 
 	if palette == "split" then
+
 		local modname = string.sub(name, 1, string.find(name, ":")-1)
 		local nodename2 = string.sub(name, string.find(name, ":")+1)
 		local oldcolor = "snozzberry"
@@ -701,16 +705,20 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 				newcolor = "grey"
 			end
 
-			local s = string.sub(def.palette, 21)
-			oldcolor = string.sub(s, 1, string.find(s, "s.png")-1)
+			if def.airbrush_replacement_node then
+				oldcolor = "grey"
+			else
+				local s = string.sub(def.palette, 21)
+				oldcolor = string.sub(s, 1, string.find(s, "s.png")-1)
+			end
 		end
 
 		if newcolor == "spring" then newcolor = "aqua"
 		elseif newcolor == "azure" then newcolor = "skyblue"
 		elseif newcolor == "rose" then newcolor = "redviolet"
 		end
-
 		name = modname..":"..string.gsub(nodename2, oldcolor, newcolor)
+
 		if not minetest.registered_items[name] then
 			minetest.chat_send_player(player_name, "*** "..string.sub(painting_with, 5).." can't be applied to that node.")
 			return
@@ -858,20 +866,20 @@ function unifieddyes.show_airbrush_form(player)
 
 	local last_right_click = unifieddyes.player_last_right_clicked[player_name]
 	if last_right_click then
-		if last_right_click.def and last_right_click.def.palette then
-			if last_right_click.def.palette == "unifieddyes_palette_colorwallmounted.png" then
+		if last_right_click.def and last_right_click.def.paramtype2 then
+			if last_right_click.def.paramtype2 == "colorwallmounted" then
 				nodepalette = "wallmounted"
-			elseif last_right_click.def.palette == "unifieddyes_palette_extended.png" then
+			elseif last_right_click.def.paramtype2 == "color" then
 				t[#t+1] = "label[0.5,8.25;(Right-clicked a node that supports all 256 colors, showing them all)]"
 				showall = true
-			elseif last_right_click.def.palette ~= "unifieddyes_palette_extended.png" then
+			elseif last_right_click.def.paramtype2 == "colorfacedir" then
 				nodepalette = "split"
-			elseif not string.find(last_right_click.def.palette, "unifieddyes_palette_") then
-			t[#t+1] = "label[0.5,8.25;(Right-clicked a node not supported by the Airbrush, showing all colors)]"
 			end
-		else
-			t[#t+1] = "label[0.5,8.25;(Right-clicked a non-colorable node, showing all colors)]"
 		end
+	end
+
+	if not last_right_click.def.groups or not last_right_click.def.groups.ud_param2_colorable then
+		t[#t+1] = "label[0.5,8.25;(Right-clicked a node not supported by the Airbrush, showing all colors)]"
 	end
 
 	for v = 0, 6 do
@@ -996,7 +1004,7 @@ function unifieddyes.show_airbrush_form(player)
 	t[#t+1] = "button_exit[11,8;2,1;cancel;Cancel]button_exit[13,8;2,1;accept;Accept]"
 
 
-	if last_right_click and last_right_click.def and last_right_click.def.palette and nodepalette ~= "extended" then
+	if last_right_click and last_right_click.def and nodepalette ~= "extended" then
 		if showall then
 			t[#t+1] = "button[0.5,8;2,1;show_avail;Show Available]"
 			t[#t+1] = "label[2.5,8.25;(Currently showing all 256 colors)]"

@@ -58,6 +58,9 @@ unifieddyes.HUES = {
 	"redviolet"
 }
 
+unifieddyes.HUES_WITH_GREY = table.copy(unifieddyes.HUES)
+table.insert(unifieddyes.HUES_WITH_GREY, "grey")
+
 -- the names of the various colors here came from http://www.procato.com/rgb+index/
 
 unifieddyes.HUES_EXTENDED = {

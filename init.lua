@@ -206,6 +206,35 @@ end
 function unifieddyes.after_dig_node(foo)
 end
 
+-- This helper function creates multiple copies of the passed node,
+-- for the split palette - one per hue, plus grey - and assigns
+-- proper palettes and other attributes
+
+function unifieddyes.generate_split_palette_nodes(name, def, drop)
+	for _, color in ipairs(unifieddyes.HUES_WITH_GREY) do
+		local def2 = table.copy(def)
+		local desc_color = string.gsub(string.upper(string.sub(color, 1, 1))..string.sub(color, 2), "_", " ")
+		if string.sub(def2.description, -1) == ")" then
+			def2.description = string.sub(def2.description, 1, -2)..", "..desc_color..")"
+		else
+			def2.description = def2.description.."("..desc_color..")"
+		end
+		def2.palette = "unifieddyes_palette_"..color.."s.png"
+		def2.paramtype2 = "colorfacedir"
+		def2.groups.ud_param2_colorable = 1
+
+		if drop then
+			def2.drop = {
+				items = {
+					{items = {drop.."_"..color}, inherit_color = true },
+				}
+			}
+		end
+
+		minetest.register_node(":"..name.."_"..color, def2)
+	end
+end
+
 -- This helper function creates a colored itemstack
 
 function unifieddyes.make_colored_itemstack(item, palette, color)

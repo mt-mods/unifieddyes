@@ -123,6 +123,11 @@ This will loop through all of Unified Dyes' color lists, generating one recipe f
 
 Makes a colored itemstack out of the given `itemstack` and `color` (as a dye, e.g. "dye:dark_red_s50"), setting the correct index per the `palette` field, which works as described above for `unifieddyes.getpaletteidx()`.  Said itemstack is returned as a string suitable for use as the output field of a craft recipe, equal in size to the itemstack passed into the function (e.g. if you give it "mymod:colored_node 7", it'll return a stack of 7 colored items).
 
+**`unifieddyes.generate_split_palette_nodes(name, def, drop)`**
+
+Does just what it sounds like - it registers all the nodes that are needed for a given base node (`def`) to be able to use the split palette, each named according to `name`, with the palette hue appended.  If a custom drop is needed, it can be passed along (only a string is allowed here, specifying a single item).  
+
+
 #### Tables
 
 In addition to the above API calls, Unified Dyes provides several useful tables

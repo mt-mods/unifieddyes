@@ -200,9 +200,9 @@ function unifieddyes.generate_split_palette_nodes(name, def, drop)
 		local def2 = table.copy(def)
 		local desc_color = string.gsub(string.upper(string.sub(color, 1, 1))..string.sub(color, 2), "_", " ")
 		if string.sub(def2.description, -1) == ")" then
-			def2.description = string.sub(def2.description, 1, -2)..", "..desc_color..")"
+			def2.description = string.sub(def2.description, 1, -2)..", "..desc_color.." shades)"
 		else
-			def2.description = def2.description.."("..desc_color..")"
+			def2.description = def2.description.."("..desc_color.." shades)"
 		end
 		def2.palette = "unifieddyes_palette_"..color.."s.png"
 		def2.paramtype2 = "colorfacedir"

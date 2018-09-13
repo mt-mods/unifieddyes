@@ -41,26 +41,6 @@ else
 	S = function(s) return s end
 end
 
--- helper functions for other mods that use this one
-
-unifieddyes.HUES = {
-	"red",
-	"orange",
-	"yellow",
-	"lime",
-	"green",
-	"aqua",
-	"cyan",
-	"skyblue",
-	"blue",
-	"violet",
-	"magenta",
-	"redviolet"
-}
-
-unifieddyes.HUES_WITH_GREY = table.copy(unifieddyes.HUES)
-table.insert(unifieddyes.HUES_WITH_GREY, "grey")
-
 -- the names of the various colors here came from http://www.procato.com/rgb+index/
 
 unifieddyes.HUES_EXTENDED = {
@@ -89,6 +69,13 @@ unifieddyes.HUES_EXTENDED = {
 	{ "rose",       0xff, 0x00, 0x80 },
 	{ "crimson",    0xff, 0x00, 0x40 }
 }
+
+unifieddyes.HUES_WITH_GREY = {}
+
+for _,i in ipairs(unifieddyes.HUES_EXTENDED) do
+	table.insert(unifieddyes.HUES_WITH_GREY, i[1])
+end
+table.insert(unifieddyes.HUES_WITH_GREY, "grey")
 
 unifieddyes.HUES_WALLMOUNTED = {
 	"red",
@@ -161,8 +148,6 @@ unifieddyes.player_selected_dye = {}
 unifieddyes.player_last_right_clicked = {}
 unifieddyes.palette_has_color = {}
 unifieddyes.player_showall = {}
-
---		unifieddyes.player_last_right_clicked[placer:get_player_name()] = {pos = pos, node = node, def = def}
 
 -- if a node with a palette is placed in the world,
 -- but the itemstack used to place it has no palette_index (color byte),
@@ -238,6 +223,7 @@ end
 -- This helper function creates a colored itemstack
 
 function unifieddyes.make_colored_itemstack(item, palette, color)
+	print(item, palette, color)
 	local paletteidx = unifieddyes.getpaletteidx(color, palette)
 	local stack = ItemStack(item)
 	stack:get_meta():set_int("palette_index", paletteidx)
@@ -247,13 +233,15 @@ end
 -- these helper functions register all of the recipes needed to create colored
 -- nodes with any of the dyes supported by that node's palette.
 
-local function register_c(craft, hue, sat, val)
+local function register_c(craft, h, sat, val)
+	local hue = (type(h) == "table") and h[1] or h
+	print(craft.output, craft.output_prefix, craft.output_suffix, h, hue, sat, val)
 	local color = ""
 	if val then
-		if craft.palette ~= "extended" then
+		if craft.palette == "wallmounted" then
 			color = val..hue..sat
 		else
-			color = val..hue[1]..sat
+			color = val..hue..sat
 		end
 	else
 		color = hue -- if val is nil, then it's grey.
@@ -294,7 +282,7 @@ local function register_c(craft, hue, sat, val)
 end
 
 function unifieddyes.register_color_craft(craft)
-	local hues_table = unifieddyes.HUES
+	local hues_table = unifieddyes.HUES_EXTENDED
 	local sats_table = unifieddyes.SATS
 	local vals_table = unifieddyes.VALS
 	local greys_table = unifieddyes.GREYS
@@ -306,7 +294,6 @@ function unifieddyes.register_color_craft(craft)
 		sats_table = {""}
 		vals_table = unifieddyes.VALS
 	elseif craft.palette == "extended" then
-		hues_table = unifieddyes.HUES_EXTENDED
 		vals_table = unifieddyes.VALS_EXTENDED
 		greys_table = unifieddyes.GREYS_EXTENDED
 	end
@@ -391,10 +378,10 @@ end
 function unifieddyes.get_hsv(name) -- expects a node/item name
 	local hue = ""
 	local a,b
-	for _, i in ipairs(unifieddyes.HUES) do
-		a,b = string.find(name, "_"..i)
-		if a and not ( string.find(name, "_redviolet") and i == "red" ) then
-			hue = i
+	for _, i in ipairs(unifieddyes.HUES_EXTENDED) do
+		a,b = string.find(name, "_"..i[1])
+		if a then
+			hue = i[1]
 			break
 		end
 	end
@@ -424,9 +411,10 @@ end
 -- in the function below, color is just a color string, while
 -- palette_type can be:
 --
--- "split" = 89 color palette split into pieces for colorfacedir
--- "wallmounted" = 32-color abridged palette
 -- "extended" = 256 color palette
+-- "split" = 200 color palette split into pieces for colorfacedir
+-- "wallmounted" = 32-color abridged palette
+
 
 function unifieddyes.getpaletteidx(color, palette_type)
 
@@ -473,24 +461,6 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		["grey"] = 2,
 		["dark_grey"] = 3,
 		["black"] = 4,
-	}
-
-	local hues = {
-		["red"] = 1,
-		["orange"] = 2,
-		["yellow"] = 3,
-		["lime"] = 4,
-		["green"] = 5,
-		["aqua"] = 6,
-		["spring"] = 6,
-		["cyan"] = 7,
-		["skyblue"] = 8,
-		["azure"] = 8,
-		["blue"] = 9,
-		["violet"] = 10,
-		["magenta"] = 11,
-		["redviolet"] = 12,
-		["rose"] = 12,
 	}
 
 	local hues_extended = {
@@ -627,19 +597,8 @@ function unifieddyes.getpaletteidx(color, palette_type)
 			shade = "light"
 		end
 		if palette_type == "split" then -- it's colorfacedir
-
-			-- If using this palette, translate new color names back to old.
-
-			if color == "spring" then
-				color = "aqua"
-			elseif color == "azure" then
-				color = "skyblue"
-			elseif color == "rose" then
-				color = "redviolet"
-			end
-
-			if hues[color] and shades[shade] then
-				return (shades[shade] * 32), hues[color]
+			if hues_extended[color] and shades[shade] then
+				return (shades[shade] * 32), hues_extended[color]+1
 			end
 		elseif palette_type == "extended" then
 			if hues_extended[color] and shades_extended[shade] then
@@ -730,7 +689,7 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 			newcolor = string.sub(painting_with, 5)
 		else
 			if hue ~= 0 then
-				newcolor = unifieddyes.HUES[hue]
+				newcolor = unifieddyes.HUES_EXTENDED[hue][1]
 			else
 				newcolor = "grey"
 			end
@@ -743,10 +702,6 @@ function unifieddyes.on_airbrush(itemstack, player, pointed_thing)
 			end
 		end
 
-		if newcolor == "spring" then newcolor = "aqua"
-		elseif newcolor == "azure" then newcolor = "skyblue"
-		elseif newcolor == "rose" then newcolor = "redviolet"
-		end
 		name = modname..":"..string.gsub(nodename2, oldcolor, newcolor)
 
 		if not minetest.registered_items[name] then
@@ -813,7 +768,7 @@ function unifieddyes.color_to_name(param2, def)
 		local h = color - v * 8
 		return unifieddyes.VALS[v]..unifieddyes.HUES_WALLMOUNTED[h+1]
 
-	elseif string.find(def.palette, "unifieddyes_palette") then -- it's the "split" 89-color palette
+	elseif string.find(def.palette, "unifieddyes_palette") then -- it's the split palette
 		-- palette names in this mode are always "unifieddyes_palette_COLORs.png"
 
 		local s = string.sub(def.palette, 21)
@@ -1206,14 +1161,6 @@ for _, h in ipairs(unifieddyes.HUES_EXTENDED) do
 			end
 		end
 		minetest.register_alias("unifieddyes:"..val..hue, "dye:"..val..hue)
-		if h[1] == "spring" then
-			minetest.register_alias("unifieddyes:"..val.."aqua", "dye:"..val.."spring")
-		elseif h[1] == "azure" then
-			minetest.register_alias("unifieddyes:"..val.."skyblue", "dye:"..val.."azure")
-		elseif h[1] == "rose" then
-			minetest.register_alias("unifieddyes:"..val.."redviolet", "dye:"..val.."rose")
-		end
-
 
 		if v > 3 then -- also register the low-sat version
 
@@ -1234,13 +1181,6 @@ for _, h in ipairs(unifieddyes.HUES_EXTENDED) do
 				groups = { dye=1, not_in_creative_inventory=1 },
 			})
 			minetest.register_alias("unifieddyes:"..val..hue.."_s50", "dye:"..val..hue.."_s50")
-			if h[1] == "spring" then
-				minetest.register_alias("unifieddyes:"..val.."aqua_s50", "dye:"..val.."spring_s50")
-			elseif h[1] == "azure" then
-				minetest.register_alias("unifieddyes:"..val.."skyblue_s50", "dye:"..val.."azure_s50")
-			elseif h[1] == "rose" then
-				minetest.register_alias("unifieddyes:"..val.."redviolet_s50", "dye:"..val.."rose_s50")
-			end
 		end
 	end
 end

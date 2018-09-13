@@ -265,18 +265,19 @@ local function register_c(craft, hue, sat, val)
 	recipe = string.gsub(recipe, "NEUTRAL_NODE", craft.neutral_node)
 	local newrecipe = minetest.deserialize(recipe)
 
-	local output = craft.output
+	local coutput = craft.output or ""
+	local output = coutput
 	if craft.output_prefix then
 		if craft.palette ~= "split" then
-			output = craft.output_prefix..color..craft.output_suffix
+			output = craft.output_prefix..color..craft.output_suffix..coutput
 		else
 			if hue == "white" or hue == "black" or string.find(hue, "grey") then
-				output = craft.output_prefix.."grey"..craft.output_suffix
+				output = craft.output_prefix.."grey"..craft.output_suffix..coutput
 			elseif hue == "pink" then
 				dye = "dye:light_red"
-				output = craft.output_prefix.."red"..craft.output_suffix
+				output = craft.output_prefix.."red"..craft.output_suffix..coutput
 			else
-				output = craft.output_prefix..hue..craft.output_suffix
+				output = craft.output_prefix..hue..craft.output_suffix..coutput
 			end
 		end
 	end

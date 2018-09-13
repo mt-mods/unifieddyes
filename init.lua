@@ -514,6 +514,17 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		["darks50"] = 7,
 	}
 
+	local shades_split = {
+		["faint"] = 0,
+		[""] = 1,
+		["s50"] = 2,
+		["light"] = 3,
+		["medium"] = 4,
+		["mediums50"] = 5,
+		["dark"] = 6,
+		["darks50"] = 7,
+	}
+
 	local shades_extended = {
 		["faint"] = 0,
 		["pastel"] = 1,
@@ -597,8 +608,8 @@ function unifieddyes.getpaletteidx(color, palette_type)
 			shade = "light"
 		end
 		if palette_type == "split" then -- it's colorfacedir
-			if hues_extended[color] and shades[shade] then
-				return (shades[shade] * 32), hues_extended[color]+1
+			if hues_extended[color] and shades_split[shade] then
+				return (shades_split[shade] * 32), hues_extended[color]+1
 			end
 		elseif palette_type == "extended" then
 			if hues_extended[color] and shades_extended[shade] then
@@ -775,9 +786,9 @@ function unifieddyes.color_to_name(param2, def)
 		local color = string.sub(s, 1, string.find(s, "s.png")-1)
 
 		local v = math.floor(param2/32)
-		if v == 0 then return "white" end
 		if color ~= "grey" then
-			if v == 1 then return color
+			if     v == 0 then return "faint_"..color
+			elseif v == 1 then return color
 			elseif v == 2 then return color.."_s50"
 			elseif v == 3 then return "light_"..color
 			elseif v == 4 then return "medium_"..color

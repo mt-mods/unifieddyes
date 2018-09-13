@@ -806,6 +806,7 @@ local hps = 0.6 -- horizontal position scale
 local vps = 1.3 -- vertical position scale
 local vs = 0.3  -- vertical shift/offset
 local color_button_size = ";0.75,0.75;"
+local color_square_size = ";0.69,0.69;"
 
 function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative, painting_with, nodepalette, hp, v2, selindic, inv, explist)
 
@@ -833,13 +834,22 @@ function unifieddyes.make_colored_square(hexcolor, colorname, showall, creative,
 		selindic = "unifieddyes_white_square.png"..colorize..overlay..unavail_overlay.."]"..
 					"tooltip["..colorname..";"..colorname.."]"
 	end
+	local form
 
-	local form = "image_button["..
-				(hp*hps)..","..(v2*vps+vs)..
-				color_button_size..
-				"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
-				colorname..";]"..
-				"tooltip["..colorname..";"..colorname.."]"
+	if unavail_overlay == "" then
+		form = "image_button["..
+					(hp*hps)..","..(v2*vps+vs)..
+					color_button_size..
+					"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay..";"..
+					colorname..";]"..
+					"tooltip["..colorname..";"..colorname.."]"
+	else
+		form = "image["..
+					(hp*hps)..","..(v2*vps+vs)..
+					color_square_size..
+					"unifieddyes_white_square.png"..colorize..overlay..unavail_overlay.."]"..
+					"tooltip["..colorname.." (unavailable);"..colorname.."]"
+	end
 
 	return form, selindic
 end

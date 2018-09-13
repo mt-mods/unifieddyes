@@ -223,7 +223,6 @@ end
 -- This helper function creates a colored itemstack
 
 function unifieddyes.make_colored_itemstack(item, palette, color)
-	print(item, palette, color)
 	local paletteidx = unifieddyes.getpaletteidx(color, palette)
 	local stack = ItemStack(item)
 	stack:get_meta():set_int("palette_index", paletteidx)
@@ -235,7 +234,6 @@ end
 
 local function register_c(craft, h, sat, val)
 	local hue = (type(h) == "table") and h[1] or h
-	print(craft.output, craft.output_prefix, craft.output_suffix, h, hue, sat, val)
 	local color = ""
 	if val then
 		if craft.palette == "wallmounted" then

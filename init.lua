@@ -128,7 +128,7 @@ unifieddyes.GREYS = {
 unifieddyes.GREYS_EXTENDED = table.copy(unifieddyes.GREYS)
 
 for i = 1, 14 do
-	if i ~= 0 and i ~= 3 and i ~= 7 and i ~= 11 and i ~= 15 then
+	if i ~= 0 and i ~= 4 and i ~= 8 and i ~= 11 and i ~= 15 then
 		table.insert(unifieddyes.GREYS_EXTENDED, "grey_"..i)
 	end
 end
@@ -449,7 +449,7 @@ function unifieddyes.getpaletteidx(color, palette_type)
 		["grey_14"] = 1,
 		["grey_13"] = 2,
 		["grey_12"] = 3,
-		["light_grey"] = 3,
+		["light_grey"] = 4,
 		["grey_11"] = 4,
 		["grey_10"] = 5,
 		["grey_9"] = 6,

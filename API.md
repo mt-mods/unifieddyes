@@ -148,7 +148,6 @@ If your mod used the old paradigm where you craft a neutral-colored item, place 
 ```lua
 	place_param2 = 240,
 	after_dig_node = unifieddyes.after_dig_node,
-	after_place_node = unifieddyes.recolor_on_place,
 	ud_replacement_node = "mod:some_node",
 	on_dig = unifieddyes.on_dig
 ```

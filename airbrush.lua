@@ -388,45 +388,6 @@ function unifieddyes.show_airbrush_form(player)
 	minetest.show_formspec(player_name, "unifieddyes:dye_select_form", table.concat(t))
 end
 
-minetest.register_tool("unifieddyes:airbrush", {
-	description = S("Dye Airbrush"),
-	inventory_image = "unifieddyes_airbrush.png",
-	use_texture_alpha = true,
-	tool_capabilities = {
-		full_punch_interval=0.1,
-	},
-	range = 12,
-	on_use = unifieddyes.on_airbrush,
-	on_place = function(itemstack, placer, pointed_thing)
-		local keys = placer:get_player_control()
-		local player_name = placer:get_player_name()
-		local pos = minetest.get_pointed_thing_position(pointed_thing)
-		local node
-		local def
-
-		if pos then node = minetest.get_node(pos) end
-		if node then def = minetest.registered_items[node.name] end
-
-		unifieddyes.player_last_right_clicked[player_name] = {pos = pos, node = node, def = def}
-
-		if (not keys.sneak) and def.on_rightclick then
-			return def.on_rightclick(pos, node, placer, itemstack, pointed_thing)
-		elseif not keys.sneak then
-			unifieddyes.show_airbrush_form(placer)
-		elseif keys.sneak then
-			if not pos or not def then return end
-			local newcolor = unifieddyes.color_to_name(node.param2, def)
-
-			if not newcolor then
-				minetest.chat_send_player(player_name, "*** That node is uncolored.")
-				return
-			end
-			minetest.chat_send_player(player_name, "*** Switching to "..newcolor.." for the airbrush, to match that node.")
-			unifieddyes.player_current_dye[player_name] = "dye:"..newcolor 
-		end
-	end
-})
-
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 	if formname == "unifieddyes:dye_select_form" then
@@ -496,3 +457,42 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 	end
 end)
+
+minetest.register_tool("unifieddyes:airbrush", {
+	description = S("Dye Airbrush"),
+	inventory_image = "unifieddyes_airbrush.png",
+	use_texture_alpha = true,
+	tool_capabilities = {
+		full_punch_interval=0.1,
+	},
+	range = 12,
+	on_use = unifieddyes.on_airbrush,
+	on_place = function(itemstack, placer, pointed_thing)
+		local keys = placer:get_player_control()
+		local player_name = placer:get_player_name()
+		local pos = minetest.get_pointed_thing_position(pointed_thing)
+		local node
+		local def
+
+		if pos then node = minetest.get_node(pos) end
+		if node then def = minetest.registered_items[node.name] end
+
+		unifieddyes.player_last_right_clicked[player_name] = {pos = pos, node = node, def = def}
+
+		if not keys.aux1 then
+			unifieddyes.show_airbrush_form(placer)
+		elseif keys.aux1 then
+			if not pos or not def then return end
+			local newcolor = unifieddyes.color_to_name(node.param2, def)
+
+			if newcolor and string.find(def.paramtype2, "color") then
+				minetest.chat_send_player(player_name, "*** Switching to "..newcolor.." for the airbrush, to match that node.")
+				unifieddyes.player_current_dye[player_name] = "dye:"..newcolor 
+			else
+				minetest.chat_send_player(player_name, "*** That node is uncolored.")
+			end
+		elseif def.on_rightclick then
+			return def.on_rightclick(pos, node, placer, itemstack, pointed_thing)
+		end
+	end
+})

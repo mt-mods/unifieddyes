@@ -87,19 +87,21 @@ for y = 1, 14 do -- colors 0 and 15 are black and white, default dyes
 	end
 end
 
-minetest.override_item("dye:grey", {
-	inventory_image = "unifieddyes_dye.png^[colorize:#888888:200",
-})
+if minetest.get_modpath("dye") then
+	minetest.override_item("dye:grey", {
+		inventory_image = "unifieddyes_dye.png^[colorize:#888888:200",
+	})
 
-minetest.override_item("dye:dark_grey", {
-	inventory_image = "unifieddyes_dye.png^[colorize:#444444:200",
-})
+	minetest.override_item("dye:dark_grey", {
+		inventory_image = "unifieddyes_dye.png^[colorize:#444444:200",
+	})
 
-minetest.register_craftitem(":dye:light_grey", {
-	description = S("Light grey Dye"),
-	inventory_image = "unifieddyes_dye.png^[colorize:#cccccc:200",
-	groups = { dye=1, not_in_creative_inventory=1 },
-})
+	minetest.register_craftitem(":dye:light_grey", {
+		description = S("Light grey Dye"),
+		inventory_image = "unifieddyes_dye.png^[colorize:#cccccc:200",
+		groups = { dye=1, not_in_creative_inventory=1 },
+	})
+end
 
 -- build a table of color <-> palette associations to reduce the need for
 -- realtime lookups with getpaletteidx()

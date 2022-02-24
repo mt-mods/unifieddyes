@@ -463,7 +463,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			local dye = "dye:"..s3
 
 			if (showall or unifieddyes.palette_has_color[nodepalette.."_"..s3]) and
-				(minetest.registered_items[dye] and (creative or inv:contains_item("main", dye))) then
+				(creative or inv:contains_item("main", dye)) then
 				unifieddyes.player_selected_dye[player_name] = dye
 				unifieddyes.show_airbrush_form(player)
 			end

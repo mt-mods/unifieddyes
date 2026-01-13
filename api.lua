@@ -33,7 +33,7 @@ minetest.register_on_placenode(
 			  and def.paramtype2 == "colorwallmounted" then
 				param2 = newnode.param2 % 8
 			elseif string.find(def.palette, "unifieddyes_palette_")
-			  and def.paramtype2 == "colorfacedir" then -- it's a split palette
+			  and (def.paramtype2 == "colorfacedir" or def.paramtype2 == "colordegrotate") then -- it's a split palette -- colordegrotate and colorfacedir both use 3 bits for color
 				param2 = newnode.param2 % 32
 			end
 

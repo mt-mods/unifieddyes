@@ -123,7 +123,11 @@ Makes a colored itemstack out of the given `itemstack` and `color` (as a dye, e.
 
 **`unifieddyes.generate_split_palette_nodes(name, def, drop)`**
 
-Does just what it sounds like - it registers all the nodes that are needed for a given base node (`def`) to be able to use the split palette, each named according to `name`, with the palette hue appended.  If a custom drop is needed, it can be passed along (only a string is allowed here, specifying a single item).  
+Does just what it sounds like - it registers all the nodes that are needed for a given base node (`def`) to be able to use the split palette, each named according to `name`, with the palette hue appended.  If a custom drop is needed, it can be passed along (only a string is allowed here, specifying a single item).
+
+**`unifieddyes.on_dig(pos, node, digger)`** _(Deprecated)_
+
+Don't use this. It is superseded by `unifieddyes.preserve_metadata`.
 
 #### Tables
 

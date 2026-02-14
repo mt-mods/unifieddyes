@@ -20,7 +20,7 @@ minetest.register_node("mymod:colored_node", {
 `paramtype2` must be one of:
 - "color": this is an 89-color or 256-color node
 - "colorwallmounted": this is a 32-color node using "wallmounted" mode
-- "colorfacedir": this node uses one of the "split" 89-color palettes.
+- "colorfacedir", "colordegrotate": this node uses one of the "split" 89-color palettes.
 
 `palette` must be set to match the `paramtype2` setting, and must be one of:
 - "unifieddyes_palette.png"

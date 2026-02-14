@@ -33,7 +33,7 @@ minetest.register_on_placenode(
 			  and def.paramtype2 == "colorwallmounted" then
 				param2 = newnode.param2 % 8
 			elseif string.find(def.palette, "unifieddyes_palette_")
-			  and def.paramtype2 == "colorfacedir" then -- it's a split palette
+			  and (def.paramtype2 == "colorfacedir" or def.paramtype2 == "colordegrotate") then -- it's a split palette -- colordegrotate and colorfacedir both use 3 bits for color
 				param2 = newnode.param2 % 32
 			end
 
@@ -173,7 +173,7 @@ function unifieddyes.on_dig(pos, node, digger)
 
 	if def.paramtype2 == "color" and param2 == 240 and def.palette == "unifieddyes_palette_extended.png" then
 		del_color = true
-	elseif (def.paramtype2 == "colorwallmounted" or def.paramtype2 == "colorfacedir")
+	elseif (def.paramtype2 == "colorwallmounted" or def.paramtype2 == "colorfacedir" or def.paramtype2 == "colordegrotate")
 		and minetest.strip_param2_color(param2, def.paramtype2) == 0
 		and string.find(def.palette, "unifieddyes_palette_")
 	then

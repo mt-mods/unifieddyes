@@ -26,7 +26,8 @@ core.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, po
 			color = 240
 		elseif def.palette == "unifieddyes_palette_colorwallmounted.png" and def.paramtype2 == "colorwallmounted" then
 			param2 = newnode.param2 % 8
-		elseif string.find(def.palette, "unifieddyes_palette_") and def.paramtype2 == "colorfacedir" then -- it's a split palette
+		-- it's a split palette
+		elseif string.find(def.palette, "unifieddyes_palette_") and def.paramtype2 == "colorfacedir" then
 			param2 = newnode.param2 % 32
 		end
 
